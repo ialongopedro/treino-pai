@@ -141,6 +141,16 @@ export function Treino() {
     if (percepcao !== 'dor' && serie < SERIES_POR_EXERCICIO) {
       setDescansando(true)
     }
+
+    if (serie === SERIES_POR_EXERCICIO) {
+      const indiceExercicio = exercicios.findIndex((e) => e.id === exercicioId)
+      if (indiceExercicio !== -1 && indiceExercicio < exercicios.length - 1) {
+        setTimeout(() => {
+          setIndiceAtual(indiceExercicio + 1)
+          setMostrarComoFazer(false)
+        }, 1200)
+      }
+    }
   }
 
   async function finalizarTreino() {
@@ -169,7 +179,7 @@ export function Treino() {
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Treino de hoje</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
+          <p className="text-slate-600 dark:text-slate-300 text-sm">
             {objetivo.emoji} {objetivo.nome} · {SERIES_POR_EXERCICIO}x{objetivo.repMin}-{objetivo.repMax} reps
           </p>
         </div>
@@ -224,7 +234,7 @@ export function Treino() {
         <Card>
           <div className="flex items-start justify-between gap-2">
             <h2 className="text-lg font-semibold">{exercicioAtual.nome}</h2>
-            <span className="text-xs text-slate-400 whitespace-nowrap mt-1">
+            <span className="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap mt-1">
               {indiceAtual + 1}/{exercicios.length}
             </span>
           </div>
@@ -234,7 +244,7 @@ export function Treino() {
           </p>
 
           {ultimo && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
               Última vez: {ultimo.cargaKg}kg × {ultimo.repeticoes} reps
             </p>
           )}
@@ -276,12 +286,12 @@ export function Treino() {
                 return (
                   <div
                     key={serie}
-                    className="flex items-center justify-between gap-2 py-2 border-t border-slate-100 dark:border-slate-700 text-green-700 dark:text-green-400"
+                    className="flex items-center justify-between gap-2 py-3 border-t border-slate-200 dark:border-slate-700 text-green-700 dark:text-green-400"
                   >
-                    <span className="font-medium text-sm">
+                    <span className="font-semibold">
                       Série {serie}: {feito.cargaKg}kg × {feito.repeticoes}
                     </span>
-                    <span className="text-sm">
+                    <span className="text-sm whitespace-nowrap">
                       {opcao?.emoji} {opcao?.label}
                     </span>
                   </div>
@@ -289,34 +299,41 @@ export function Treino() {
               }
 
               return (
-                <div key={serie} className="flex items-center gap-2 py-1.5 border-t border-slate-100 dark:border-slate-700 flex-wrap">
-                  <span className="text-slate-500 text-sm w-14 shrink-0">Série {serie}</span>
-                  <Stepper
-                    valor={entrada.cargaKg}
-                    sufixo="kg"
-                    passo={1}
-                    onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'cargaKg', v)}
-                  />
-                  <Stepper
-                    valor={entrada.repeticoes}
-                    sufixo=" reps"
-                    passo={1}
-                    onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'repeticoes', v)}
-                  />
-                  <div className="flex gap-1 ml-auto">
+                <div key={serie} className="py-3 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+                  <span className="text-slate-700 dark:text-slate-300 font-semibold">Série {serie}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Carga</span>
+                      <Stepper
+                        valor={entrada.cargaKg}
+                        sufixo="kg"
+                        passo={1}
+                        onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'cargaKg', v)}
+                      />
+                    </div>
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Reps</span>
+                      <Stepper
+                        valor={entrada.repeticoes}
+                        passo={1}
+                        onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'repeticoes', v)}
+                      />
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Como foi essa série?</span>
+                  <div className="grid grid-cols-4 gap-1.5">
                     {OPCOES_PERCEPCAO.map((opcao) => (
                       <button
                         key={opcao.id}
                         onClick={() => concluirSerie(exercicioAtual.id!, serie, opcao.id, cargaPadrao)}
-                        aria-label={opcao.label}
-                        title={opcao.label}
-                        className={`min-w-[40px] min-h-[40px] rounded-lg flex items-center justify-center text-lg ${
+                        className={`min-h-[52px] rounded-xl flex flex-col items-center justify-center gap-0.5 text-xs font-medium ${
                           opcao.id === 'dor'
-                            ? 'bg-red-100 dark:bg-red-950'
-                            : 'bg-slate-100 dark:bg-slate-700'
+                            ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400'
+                            : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
                         }`}
                       >
-                        {opcao.emoji}
+                        <span className="text-xl leading-none">{opcao.emoji}</span>
+                        {opcao.label}
                       </button>
                     ))}
                   </div>

@@ -18,7 +18,7 @@ export default defineConfig({
         theme_color: '#1d4ed8',
         background_color: '#f8fafc',
         display: 'standalone',
-        start_url: '/',
+        start_url: '.',
         icons: [
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
           { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' },

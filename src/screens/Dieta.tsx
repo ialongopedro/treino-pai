@@ -6,6 +6,7 @@ import { BigButton } from '../components/BigButton'
 import { ProgressBar } from '../components/ProgressBar'
 import { hojeISO } from '../lib/date'
 import { calcularMetaProteina, calcularTotaisDoDia, calcularTotaisRefeicao } from '../lib/calc'
+import { obterPerfilCorporal } from '../db/perfisCorporais'
 import type { MealEntry, MealLog } from '../types'
 
 const REFEICOES: { id: MealLog['refeicao']; label: string }[] = [
@@ -29,6 +30,7 @@ export function Dieta() {
 
   const totaisDia = calcularTotaisDoDia(meals, foods)
   const metaProteina = perfil ? calcularMetaProteina(perfil.pesoKg, perfil.metaProteinaGKg) : 0
+  const perfilCorporal = obterPerfilCorporal(perfil?.perfilCorporalId)
 
   async function adicionarAlimento(refeicao: MealLog['refeicao']) {
     if (!alimentoSelecionado || !quantidade) return
@@ -65,6 +67,17 @@ export function Dieta() {
         <p className="text-slate-500 dark:text-slate-400 mt-2">
           {Math.round(totaisDia.calorias)} kcal hoje
         </p>
+      </Card>
+
+      <Card>
+        <h2 className="text-lg font-semibold mb-2">
+          {perfilCorporal.emoji} Sugestões pro seu perfil ({perfilCorporal.nome})
+        </h2>
+        <ul className="flex flex-col gap-1.5 text-slate-600 dark:text-slate-300 text-sm">
+          {perfilCorporal.sugestoesRefeicoes.map((s) => (
+            <li key={s}>• {s}</li>
+          ))}
+        </ul>
       </Card>
 
       {REFEICOES.map((refeicao) => {

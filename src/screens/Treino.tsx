@@ -11,6 +11,7 @@ import { ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
 import { solicitarTelaSempreAcesa } from '../lib/feedback'
 import { obterObjetivo } from '../db/goals'
+import { obterPerfilCorporal } from '../db/perfisCorporais'
 import type { Percepcao, SetLog, WorkoutSession } from '../types'
 
 const SERIES_POR_EXERCICIO = 3
@@ -35,6 +36,8 @@ export function Treino() {
   const sessaoHoje = useLiveQuery(() => db.sessions.where('data').equals(hoje).first(), [hoje])
   const perfil = useLiveQuery(() => db.profile.toCollection().first())
   const objetivo = obterObjetivo(perfil?.objetivoId)
+  const perfilCorporal = obterPerfilCorporal(perfil?.perfilCorporalId)
+  const descansoSegundos = objetivo.descansoSegundos + perfilCorporal.descansoExtraSegundos
 
   const [sessionId, setSessionId] = useState<number | null>(null)
   const [entradas, setEntradas] = useState<Record<string, EntradaSerie>>({})
@@ -169,7 +172,7 @@ export function Treino() {
       )}
 
       {descansando && (
-        <RestTimer segundosIniciais={objetivo.descansoSegundos} onFim={() => setDescansando(false)} />
+        <RestTimer segundosIniciais={descansoSegundos} onFim={() => setDescansando(false)} />
       )}
 
       {exercicios.map((ex) => {

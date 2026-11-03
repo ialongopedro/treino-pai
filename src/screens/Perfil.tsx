@@ -4,7 +4,14 @@ import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
 import { calcularMetaProteina, calcularSequenciaSemanas, calcularTotaisDoDia } from '../lib/calc'
-import { OBJETIVOS, obterObjetivo, calcularMetaCaloriasSugerida } from '../db/goals'
+import { OBJETIVOS, obterObjetivo, calcularMetaCaloriasSugerida, type GoalDefinition } from '../db/goals'
+import {
+  PERFIS_CORPORAIS,
+  obterPerfilCorporal,
+  calcularIMC,
+  classificarIMC,
+  type PerfilCorporalDefinition,
+} from '../db/perfisCorporais'
 import { aplicarObjetivo } from '../db/seed'
 import type { Profile } from '../types'
 
@@ -25,13 +32,14 @@ export function Perfil() {
 
   async function salvarPerfil(dados: Profile) {
     const objetivoMudou = perfil && perfil.objetivoId !== dados.objetivoId
+    const perfilCorporalMudou = perfil && perfil.perfilCorporalId !== dados.perfilCorporalId
     if (perfil?.id) {
       await db.profile.update(perfil.id, dados)
     } else {
       await db.profile.add({ ...dados, aceitouAvisoMedico: true, criadoEm: new Date().toISOString() })
     }
-    if (!perfil || objetivoMudou) {
-      await aplicarObjetivo(dados.objetivoId)
+    if (!perfil || objetivoMudou || perfilCorporalMudou) {
+      await aplicarObjetivo(dados.objetivoId, dados.perfilCorporalId)
     }
     setEditando(false)
   }
@@ -81,6 +89,9 @@ export function Perfil() {
     return <FormularioPerfil perfilAtual={perfil} onSalvar={salvarPerfil} />
   }
 
+  const perfilCorporal = obterPerfilCorporal(perfil.perfilCorporalId)
+  const imc = calcularIMC(perfil.pesoKg, perfil.alturaCm)
+
   return (
     <div className="p-4 pb-24 flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Perfil</h1>
@@ -92,6 +103,9 @@ export function Perfil() {
         </p>
         <p className="text-slate-600 dark:text-slate-300 mt-1">
           Objetivo: {obterObjetivo(perfil.objetivoId).emoji} {obterObjetivo(perfil.objetivoId).nome}
+        </p>
+        <p className="text-slate-600 dark:text-slate-300 mt-1">
+          Perfil corporal: {perfilCorporal.emoji} {perfilCorporal.nome} (IMC {imc.toFixed(1)})
         </p>
         {perfil.pressaoAlta && (
           <p className="text-amber-700 dark:text-amber-400 mt-1">⚠️ Pressão alta registrada</p>
@@ -119,6 +133,17 @@ export function Perfil() {
           o médico antes de iniciar ou mudar a rotina de exercícios, principalmente por causa da
           idade e da pressão alta. Durante o esforço, expire — nunca prenda a respiração.
         </p>
+      </Card>
+
+      <Card>
+        <h2 className="text-lg font-semibold mb-2">
+          {perfilCorporal.emoji} Dicas de alimentação pro seu perfil
+        </h2>
+        <ul className="flex flex-col gap-1.5 text-slate-600 dark:text-slate-300 text-sm">
+          {perfilCorporal.dicasAlimentares.map((dica) => (
+            <li key={dica}>• {dica}</li>
+          ))}
+        </ul>
       </Card>
 
       {medalhas.length > 0 && (
@@ -172,22 +197,41 @@ function FormularioPerfil({
   const [pressaoAlta, setPressaoAlta] = useState(perfilAtual?.pressaoAlta ?? true)
   const [outrasLimitacoes, setOutrasLimitacoes] = useState(perfilAtual?.outrasLimitacoes ?? '')
   const [objetivoId, setObjetivoId] = useState(perfilAtual?.objetivoId ?? 'ganhar_massa')
+  const [perfilCorporalId, setPerfilCorporalId] = useState(
+    perfilAtual?.perfilCorporalId ??
+      classificarIMC(calcularIMC(parseFloat(pesoKg) || 70, parseFloat(alturaCm) || 170)),
+  )
   const [metaProteinaGKg, setMetaProteinaGKg] = useState(perfilAtual?.metaProteinaGKg ?? 1.4)
   const [metaCaloriasKcal, setMetaCaloriasKcal] = useState(
     String(perfilAtual?.metaCaloriasKcal ?? 2200),
   )
 
+  const imcAtual = calcularIMC(parseFloat(pesoKg) || 70, parseFloat(alturaCm) || 170)
+  const perfilSugerido = classificarIMC(imcAtual)
+
+  function recalcularMetas(novoObjetivoId: typeof objetivoId, novoPerfilId: typeof perfilCorporalId) {
+    const objetivo = obterObjetivo(novoObjetivoId)
+    const perfilCorporal = obterPerfilCorporal(novoPerfilId)
+    setMetaProteinaGKg(Math.round((objetivo.metaProteinaGKg + perfilCorporal.ajusteProteinaGKg) * 10) / 10)
+    setMetaCaloriasKcal(String(calcularMetaCaloriasSugerida(parseFloat(pesoKg) || 70, objetivo)))
+  }
+
   function escolherObjetivo(novoId: typeof objetivoId) {
     setObjetivoId(novoId)
-    const def = obterObjetivo(novoId)
-    setMetaProteinaGKg(def.metaProteinaGKg)
-    setMetaCaloriasKcal(String(calcularMetaCaloriasSugerida(parseFloat(pesoKg) || 70, def)))
+    recalcularMetas(novoId, perfilCorporalId)
+  }
+
+  function escolherPerfilCorporal(novoId: typeof perfilCorporalId) {
+    setPerfilCorporalId(novoId)
+    recalcularMetas(objetivoId, novoId)
   }
 
   function handleSalvar() {
-    if (perfilAtual && perfilAtual.objetivoId !== objetivoId) {
+    const objetivoMudou = perfilAtual && perfilAtual.objetivoId !== objetivoId
+    const perfilCorporalMudou = perfilAtual && perfilAtual.perfilCorporalId !== perfilCorporalId
+    if (objetivoMudou || perfilCorporalMudou) {
       const confirmou = window.confirm(
-        'Trocar o objetivo vai substituir os exercícios do treino pelos do novo objetivo. O histórico de treinos anteriores continua salvo. Quer continuar?',
+        'Mudar o objetivo ou o perfil corporal vai substituir os exercícios do treino pelos mais indicados pra essa combinação. O histórico de treinos anteriores continua salvo. Quer continuar?',
       )
       if (!confirmou) return
     }
@@ -199,6 +243,7 @@ function FormularioPerfil({
       pressaoAlta,
       outrasLimitacoes,
       objetivoId,
+      perfilCorporalId,
       metaProteinaGKg,
       metaCaloriasKcal: parseFloat(metaCaloriasKcal) || 2200,
       aceitouAvisoMedico: true,
@@ -269,7 +314,7 @@ function FormularioPerfil({
         <div>
           <span className="font-medium block mb-2">Objetivo principal</span>
           <div className="flex flex-col gap-2">
-            {OBJETIVOS.map((obj) => (
+            {OBJETIVOS.map((obj: GoalDefinition) => (
               <button
                 key={obj.id}
                 type="button"
@@ -289,6 +334,34 @@ function FormularioPerfil({
           </div>
         </div>
 
+        <div>
+          <span className="font-medium block mb-1">Perfil corporal</span>
+          <p className="text-xs text-slate-400 mb-2">
+            IMC calculado: {imcAtual.toFixed(1)} — sugestão automática: {obterPerfilCorporal(perfilSugerido).emoji}{' '}
+            {obterPerfilCorporal(perfilSugerido).nome}
+          </p>
+          <div className="flex flex-col gap-2">
+            {PERFIS_CORPORAIS.map((p: PerfilCorporalDefinition) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => escolherPerfilCorporal(p.id)}
+                className={`text-left rounded-xl border-2 p-3 transition-colors ${
+                  perfilCorporalId === p.id
+                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
+                    : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'
+                }`}
+              >
+                <span className="font-semibold">
+                  {p.emoji} {p.nome}
+                  {perfilSugerido === p.id ? ' (sugerido)' : ''}
+                </span>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{p.descricao}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <label className="flex flex-col gap-1">
           <span className="font-medium">Outras limitações (coluna, joelho, etc.)</span>
           <input
@@ -303,7 +376,7 @@ function FormularioPerfil({
           <input
             type="range"
             min={1.2}
-            max={1.6}
+            max={2.0}
             step={0.1}
             value={metaProteinaGKg}
             onChange={(e) => setMetaProteinaGKg(parseFloat(e.target.value))}

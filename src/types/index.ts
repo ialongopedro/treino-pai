@@ -7,6 +7,7 @@ export interface Profile {
   pressaoAlta: boolean
   outrasLimitacoes: string
   objetivoId: 'ganhar_massa' | 'perder_peso' | 'manter_forma' | 'autonomia_mobilidade'
+  perfilCorporalId: 'baixo_peso' | 'adequado' | 'excesso_peso'
   metaProteinaGKg: number
   metaCaloriasKcal: number
   aceitouAvisoMedico: boolean

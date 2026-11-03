@@ -13,7 +13,8 @@ export interface GoalDefinition {
   repMin: number
   repMax: number
   descansoSegundos: number
-  exercicios: Omit<Exercise, 'id'>[]
+  exerciciosPadrao: Omit<Exercise, 'id'>[]
+  exerciciosAdaptados: Omit<Exercise, 'id'>[]
 }
 
 export const OBJETIVOS: GoalDefinition[] = [
@@ -29,7 +30,7 @@ export const OBJETIVOS: GoalDefinition[] = [
     repMin: 8,
     repMax: 12,
     descansoSegundos: 75,
-    exercicios: [
+    exerciciosPadrao: [
       {
         nome: 'Agachamento no banco (ou leg press)',
         grupo: 'perna',
@@ -71,6 +72,43 @@ export const OBJETIVOS: GoalDefinition[] = [
         ordem: 5,
       },
     ],
+    exerciciosAdaptados: [
+      {
+        nome: 'Agachamento na cadeira com apoio dos braços',
+        grupo: 'perna',
+        descricao: 'Sente e levante de uma cadeira firme, apoiando as mãos nos braços da cadeira ou numa mesa.',
+        dicaSeguranca: 'Peso bem distribuído nos dois pés. Expire ao levantar, sem pressa.',
+        ordem: 1,
+      },
+      {
+        nome: 'Extensão de quadril apoiada (ou mesa flexora leve)',
+        grupo: 'lombar',
+        descricao: 'Deitado de barriga para cima, eleve o quadril apertando o glúteo, ou use a mesa flexora com carga mínima.',
+        dicaSeguranca: 'Evite movimentos de tronco livre (sem hiperextensão da lombar). Carga bem leve.',
+        ordem: 2,
+      },
+      {
+        nome: 'Remada sentada (polia ou elástico leve)',
+        grupo: 'puxar',
+        descricao: 'Sentado, puxe a polia ou elástico trazendo os cotovelos para trás.',
+        dicaSeguranca: 'Apoio total das costas no banco. Movimento curto e controlado.',
+        ordem: 3,
+      },
+      {
+        nome: 'Flexão de braço na parede',
+        grupo: 'empurrar',
+        descricao: 'De pé, mãos na parede na altura dos ombros, flexione os braços levando o peito à parede e empurre de volta.',
+        dicaSeguranca: 'Pés afastados da parede o suficiente para sentir esforço leve. Expire ao empurrar.',
+        ordem: 4,
+      },
+      {
+        nome: 'Elevação pélvica apoiada',
+        grupo: 'quadril',
+        descricao: 'Deitado, suba o quadril apertando o glúteo, sem prancha nesta versão.',
+        dicaSeguranca: 'Movimento curto, sem forçar a lombar.',
+        ordem: 5,
+      },
+    ],
   },
   {
     id: 'perder_peso',
@@ -84,7 +122,7 @@ export const OBJETIVOS: GoalDefinition[] = [
     repMin: 12,
     repMax: 15,
     descansoSegundos: 45,
-    exercicios: [
+    exerciciosPadrao: [
       {
         nome: 'Agachamento livre ou no banco',
         grupo: 'perna',
@@ -121,6 +159,43 @@ export const OBJETIVOS: GoalDefinition[] = [
         ordem: 5,
       },
     ],
+    exerciciosAdaptados: [
+      {
+        nome: 'Agachamento na cadeira com apoio',
+        grupo: 'perna',
+        descricao: 'Sente e levante de uma cadeira firme, apoiando as mãos se precisar.',
+        dicaSeguranca: 'Peso nos calcanhares. Sem pressa.',
+        ordem: 1,
+      },
+      {
+        nome: 'Marcha estacionária apoiada',
+        grupo: 'perna',
+        descricao: 'Em pé, apoiado numa cadeira ou parede, suba os joelhos alternados num ritmo leve, como se estivesse marchando.',
+        dicaSeguranca: 'Sempre com apoio por perto. Ritmo controlado, sem pressa.',
+        ordem: 2,
+      },
+      {
+        nome: 'Remada sentada (polia ou elástico leve)',
+        grupo: 'puxar',
+        descricao: 'Sentado, puxe a polia ou elástico trazendo os cotovelos para trás.',
+        dicaSeguranca: 'Apoio total das costas no banco.',
+        ordem: 3,
+      },
+      {
+        nome: 'Flexão de braço na parede',
+        grupo: 'empurrar',
+        descricao: 'De pé, mãos na parede na altura dos ombros, flexione os braços e empurre de volta.',
+        dicaSeguranca: 'Expire ao empurrar.',
+        ordem: 4,
+      },
+      {
+        nome: 'Prancha apoiada nos joelhos',
+        grupo: 'core',
+        descricao: 'Prancha curta com os joelhos no chão, sem elevação de joelhos nesta versão.',
+        dicaSeguranca: 'Pare se sentir dor na lombar ou falta de ar.',
+        ordem: 5,
+      },
+    ],
   },
   {
     id: 'manter_forma',
@@ -133,7 +208,7 @@ export const OBJETIVOS: GoalDefinition[] = [
     repMin: 10,
     repMax: 12,
     descansoSegundos: 60,
-    exercicios: [
+    exerciciosPadrao: [
       {
         nome: 'Agachamento no banco (ou leg press)',
         grupo: 'perna',
@@ -170,6 +245,43 @@ export const OBJETIVOS: GoalDefinition[] = [
         ordem: 5,
       },
     ],
+    exerciciosAdaptados: [
+      {
+        nome: 'Agachamento na cadeira com apoio',
+        grupo: 'perna',
+        descricao: 'Sente e levante de uma cadeira firme, com apoio dos braços se precisar.',
+        dicaSeguranca: 'Sem pressa, peso nos calcanhares.',
+        ordem: 1,
+      },
+      {
+        nome: 'Extensão de quadril apoiada',
+        grupo: 'lombar',
+        descricao: 'Deitado, eleve o quadril apertando o glúteo, com carga bem leve ou sem carga.',
+        dicaSeguranca: 'Movimento curto, sem hiperextensão da lombar.',
+        ordem: 2,
+      },
+      {
+        nome: 'Remada sentada (polia ou elástico leve)',
+        grupo: 'puxar',
+        descricao: 'Sentado, puxe a polia ou elástico levando os cotovelos para trás.',
+        dicaSeguranca: 'Apoio total das costas no banco.',
+        ordem: 3,
+      },
+      {
+        nome: 'Flexão de braço na parede',
+        grupo: 'empurrar',
+        descricao: 'Mãos na parede na altura dos ombros, flexione os braços e empurre de volta.',
+        dicaSeguranca: 'Expire ao empurrar.',
+        ordem: 4,
+      },
+      {
+        nome: 'Elevação de panturrilha sentado',
+        grupo: 'quadril',
+        descricao: 'Sentado numa cadeira, suba e desça a ponta dos pés.',
+        dicaSeguranca: 'Movimento lento, sem pressa. Reduz a exigência de equilíbrio.',
+        ordem: 5,
+      },
+    ],
   },
   {
     id: 'autonomia_mobilidade',
@@ -183,7 +295,7 @@ export const OBJETIVOS: GoalDefinition[] = [
     repMin: 10,
     repMax: 15,
     descansoSegundos: 90,
-    exercicios: [
+    exerciciosPadrao: [
       {
         nome: 'Sentar e levantar da cadeira',
         grupo: 'perna',
@@ -216,6 +328,43 @@ export const OBJETIVOS: GoalDefinition[] = [
         nome: 'Mobilidade de quadril e alongamento leve',
         grupo: 'lombar',
         descricao: 'Movimentos leves de rotação de quadril e alongamento da lombar e posterior de coxa.',
+        dicaSeguranca: 'Sem dor. Movimento suave, sem forçar.',
+        ordem: 5,
+      },
+    ],
+    exerciciosAdaptados: [
+      {
+        nome: 'Sentar e levantar da cadeira (com apoio dos braços)',
+        grupo: 'perna',
+        descricao: 'Levante e sente numa cadeira firme, sempre apoiando as mãos nos braços da cadeira.',
+        dicaSeguranca: 'Não force sem apoio. Expire ao levantar, sem pressa.',
+        ordem: 1,
+      },
+      {
+        nome: 'Equilíbrio em uma perna (apoio com as duas mãos)',
+        grupo: 'core',
+        descricao: 'Apoiado com as duas mãos numa cadeira ou parede, fique em uma perna por alguns segundos e troque.',
+        dicaSeguranca: 'Nunca sem apoio firme por perto. Pare se sentir qualquer instabilidade.',
+        ordem: 2,
+      },
+      {
+        nome: 'Marcha estacionária apoiada',
+        grupo: 'perna',
+        descricao: 'Em pé, apoiado numa cadeira ou parede, suba os joelhos alternados num ritmo leve.',
+        dicaSeguranca: 'Sempre com apoio por perto, substitui o degrau para reduzir risco de queda.',
+        ordem: 3,
+      },
+      {
+        nome: 'Elevação de panturrilha sentado',
+        grupo: 'quadril',
+        descricao: 'Sentado numa cadeira, suba e desça a ponta dos pés.',
+        dicaSeguranca: 'Movimento lento, sem exigir equilíbrio em pé.',
+        ordem: 4,
+      },
+      {
+        nome: 'Mobilidade de quadril e alongamento leve (sentado)',
+        grupo: 'lombar',
+        descricao: 'Sentado numa cadeira, movimentos leves de rotação de quadril e alongamento da lombar.',
         dicaSeguranca: 'Sem dor. Movimento suave, sem forçar.',
         ordem: 5,
       },

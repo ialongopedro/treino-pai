@@ -1,6 +1,7 @@
 import { db } from './db'
 import type { FoodItem } from '../types'
 import { obterObjetivo, type GoalId } from './goals'
+import { obterPerfilCorporal, type PerfilCorporalId } from './perfisCorporais'
 
 const alimentosSeed: Omit<FoodItem, 'id'>[] = [
   { nome: 'Ovo cozido', proteinaPor100g: 13, caloriasPor100g: 155, porcaoPadraoG: 50, customizado: false },
@@ -23,7 +24,7 @@ const alimentosSeed: Omit<FoodItem, 'id'>[] = [
 export async function seedIfEmpty() {
   const exerciseCount = await db.exercises.count()
   if (exerciseCount === 0) {
-    await db.exercises.bulkAdd(obterObjetivo('ganhar_massa').exercicios)
+    await db.exercises.bulkAdd(obterObjetivo('ganhar_massa').exerciciosPadrao)
   }
   const foodCount = await db.foods.count()
   if (foodCount === 0) {
@@ -31,8 +32,10 @@ export async function seedIfEmpty() {
   }
 }
 
-export async function aplicarObjetivo(objetivoId: GoalId) {
+export async function aplicarObjetivo(objetivoId: GoalId, perfilCorporalId: PerfilCorporalId) {
   const objetivo = obterObjetivo(objetivoId)
+  const perfilCorporal = obterPerfilCorporal(perfilCorporalId)
+  const exercicios = perfilCorporal.usaExerciciosAdaptados ? objetivo.exerciciosAdaptados : objetivo.exerciciosPadrao
   await db.exercises.clear()
-  await db.exercises.bulkAdd(objetivo.exercicios)
+  await db.exercises.bulkAdd(exercicios)
 }

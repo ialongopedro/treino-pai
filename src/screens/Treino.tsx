@@ -12,7 +12,7 @@ import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } 
 import { solicitarTelaSempreAcesa } from '../lib/feedback'
 import { obterObjetivo } from '../db/goals'
 import { obterPerfilCorporal } from '../db/perfisCorporais'
-import type { Percepcao, SetLog, WorkoutSession } from '../types'
+import type { Exercise, Percepcao, SetLog, WorkoutSession } from '../types'
 
 const SERIES_POR_EXERCICIO = 3
 
@@ -20,7 +20,7 @@ const OPCOES_PERCEPCAO: { id: Percepcao; emoji: string; label: string }[] = [
   { id: 'facil', emoji: '🙂', label: 'Fácil' },
   { id: 'bom', emoji: '😐', label: 'Boa' },
   { id: 'dificil', emoji: '😓', label: 'Difícil' },
-  { id: 'dor', emoji: '😣', label: 'Senti dor' },
+  { id: 'dor', emoji: '😣', label: 'Dor' },
 ]
 
 interface EntradaSerie {
@@ -42,7 +42,8 @@ export function Treino() {
   const [sessionId, setSessionId] = useState<number | null>(null)
   const [entradas, setEntradas] = useState<Record<string, EntradaSerie>>({})
   const [descansando, setDescansando] = useState(false)
-  const [exercicioExpandido, setExercicioExpandido] = useState<number | null>(null)
+  const [indiceAtual, setIndiceAtual] = useState(0)
+  const [mostrarComoFazer, setMostrarComoFazer] = useState(false)
   const [editandoExercicios, setEditandoExercicios] = useState(false)
   const wakeLockRef = useRef<WakeLockSentinel | null>(null)
 
@@ -76,6 +77,12 @@ export function Treino() {
       wakeLockRef.current = null
     }
   }, [diaDeTreino, sessaoHoje?.finalizado])
+
+  useEffect(() => {
+    if (indiceAtual >= exercicios.length && exercicios.length > 0) {
+      setIndiceAtual(0)
+    }
+  }, [exercicios.length, indiceAtual])
 
   if (editandoExercicios) {
     return <EditarExercicios onFechar={() => setEditandoExercicios(false)} />
@@ -142,21 +149,28 @@ export function Treino() {
     wakeLockRef.current?.release().catch(() => {})
   }
 
-  const todosSetsFeitos =
-    sessaoHoje &&
-    exercicios.every((ex) =>
-      [1, 2, 3].every((serie) =>
-        sessaoHoje.sets.some((s) => s.exercicioId === ex.id && s.numeroSerie === serie),
-      ),
+  function exercicioCompleto(ex: Exercise) {
+    return [1, 2, 3].every((serie) =>
+      sessaoHoje?.sets.some((s) => s.exercicioId === ex.id && s.numeroSerie === serie),
     )
+  }
+
+  const todosSetsFeitos = sessaoHoje && exercicios.every(exercicioCompleto)
+  const exercicioAtual = exercicios[indiceAtual]
+
+  const ultimo = exercicioAtual ? ultimaCargaPorExercicio(sessions, exercicioAtual.id!) : null
+  const sugestao = ultimo ? sugerirProgressao(ultimo.sets, ultimo.cargaKg, objetivo.repMax) : null
+  const alertaDor = exercicioAtual ? doisEpisodiosDorSeguidos(sessions, exercicioAtual.id!) : false
+  const cargaPadrao = sugestao?.deveAumentar ? sugestao.cargaSugeridaKg : ultimo?.cargaKg ?? 0
+  const atualCompleto = exercicioAtual ? exercicioCompleto(exercicioAtual) : false
 
   return (
-    <div className="p-4 pb-24 flex flex-col gap-4">
+    <div className="p-4 pb-24 flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Treino de hoje</h1>
-          <p className="text-slate-500 dark:text-slate-400">
-            {objetivo.emoji} {objetivo.nome} · {objetivo.repMin}-{objetivo.repMax} reps
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            {objetivo.emoji} {objetivo.nome} · {SERIES_POR_EXERCICIO}x{objetivo.repMin}-{objetivo.repMax} reps
           </p>
         </div>
         <button
@@ -175,115 +189,168 @@ export function Treino() {
         <RestTimer segundosIniciais={descansoSegundos} onFim={() => setDescansando(false)} />
       )}
 
-      {exercicios.map((ex) => {
-        const ultimo = ultimaCargaPorExercicio(sessions, ex.id!)
-        const sugestao = ultimo ? sugerirProgressao(ultimo.sets, ultimo.cargaKg, objetivo.repMax) : null
-        const alertaDor = doisEpisodiosDorSeguidos(sessions, ex.id!)
-        const expandido = exercicioExpandido === ex.id
-        const cargaPadrao = sugestao?.deveAumentar ? sugestao.cargaSugeridaKg : ultimo?.cargaKg ?? 0
-
-        return (
-          <Card key={ex.id}>
+      {/* Faixa horizontal fina com todos os exercícios, pra ver o treino todo e trocar rápido */}
+      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
+        {exercicios.map((ex, i) => {
+          const completo = exercicioCompleto(ex)
+          const ativo = i === indiceAtual
+          return (
             <button
-              className="w-full text-left"
-              onClick={() => setExercicioExpandido(expandido ? null : ex.id!)}
+              key={ex.id}
+              onClick={() => {
+                setIndiceAtual(i)
+                setMostrarComoFazer(false)
+              }}
+              className={`shrink-0 flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 rounded-full border-2 text-sm font-medium whitespace-nowrap min-h-[44px] ${
+                ativo
+                  ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
+                  : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'
+              }`}
             >
-              <h2 className="text-lg font-semibold">{ex.nome}</h2>
+              <span
+                className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold ${
+                  completo ? 'bg-green-600 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-200'
+                }`}
+              >
+                {completo ? '✓' : i + 1}
+              </span>
+              {ex.nome.split(' ').slice(0, 2).join(' ')}
             </button>
+          )
+        })}
+      </div>
 
-            {ultimo && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Última vez: {ultimo.cargaKg}kg × {ultimo.repeticoes} reps
-              </p>
-            )}
+      {exercicioAtual && (
+        <Card>
+          <div className="flex items-start justify-between gap-2">
+            <h2 className="text-lg font-semibold">{exercicioAtual.nome}</h2>
+            <span className="text-xs text-slate-400 whitespace-nowrap mt-1">
+              {indiceAtual + 1}/{exercicios.length}
+            </span>
+          </div>
 
-            {sugestao?.deveAumentar && (
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">
-                🎯 Sugestão: tente {sugestao.cargaSugeridaKg}kg hoje
-              </p>
-            )}
+          <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">
+            🎯 {SERIES_POR_EXERCICIO} séries de {objetivo.repMin}-{objetivo.repMax} reps
+          </p>
 
-            {alertaDor && (
-              <p className="text-sm text-red-700 dark:text-red-400 font-medium mt-1">
-                ⚠️ Dor registrada duas vezes seguidas neste exercício. Converse com o médico ou
-                instrutor antes de continuar.
-              </p>
-            )}
+          {ultimo && (
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Última vez: {ultimo.cargaKg}kg × {ultimo.repeticoes} reps
+            </p>
+          )}
 
-            {expandido && (
-              <div className="mt-3 flex flex-col gap-4">
-                <p className="text-sm text-slate-600 dark:text-slate-300">{ex.descricao}</p>
-                <p className="text-sm text-amber-700 dark:text-amber-400">⚠️ {ex.dicaSeguranca}</p>
+          {sugestao?.deveAumentar && (
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">
+              🎯 Sugestão: tente {sugestao.cargaSugeridaKg}kg hoje
+            </p>
+          )}
 
-                {[1, 2, 3].map((serie) => {
-                  const feito = sessaoHoje?.sets.find(
-                    (s) => s.exercicioId === ex.id && s.numeroSerie === serie,
-                  )
-                  const entrada = entradaAtual(ex.id!, serie, cargaPadrao)
+          {alertaDor && (
+            <p className="text-sm text-red-700 dark:text-red-400 font-medium mt-1">
+              ⚠️ Dor registrada duas vezes seguidas neste exercício. Converse com o médico ou
+              instrutor antes de continuar.
+            </p>
+          )}
 
-                  if (feito) {
-                    const opcao = OPCOES_PERCEPCAO.find((o) => o.id === feito.percepcao)
-                    return (
-                      <div
-                        key={serie}
-                        className="flex items-center justify-between gap-2 text-green-700 dark:text-green-400"
+          <p className="text-sm text-amber-700 dark:text-amber-400 mt-2">⚠️ {exercicioAtual.dicaSeguranca}</p>
+
+          <button
+            onClick={() => setMostrarComoFazer((v) => !v)}
+            className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1"
+          >
+            {mostrarComoFazer ? 'Esconder como fazer ▾' : 'Como fazer ▸'}
+          </button>
+          {mostrarComoFazer && (
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{exercicioAtual.descricao}</p>
+          )}
+
+          <div className="flex flex-col gap-2 mt-3">
+            {[1, 2, 3].map((serie) => {
+              const feito = sessaoHoje?.sets.find(
+                (s) => s.exercicioId === exercicioAtual.id && s.numeroSerie === serie,
+              )
+              const entrada = entradaAtual(exercicioAtual.id!, serie, cargaPadrao)
+
+              if (feito) {
+                const opcao = OPCOES_PERCEPCAO.find((o) => o.id === feito.percepcao)
+                return (
+                  <div
+                    key={serie}
+                    className="flex items-center justify-between gap-2 py-2 border-t border-slate-100 dark:border-slate-700 text-green-700 dark:text-green-400"
+                  >
+                    <span className="font-medium text-sm">
+                      Série {serie}: {feito.cargaKg}kg × {feito.repeticoes}
+                    </span>
+                    <span className="text-sm">
+                      {opcao?.emoji} {opcao?.label}
+                    </span>
+                  </div>
+                )
+              }
+
+              return (
+                <div key={serie} className="flex items-center gap-2 py-1.5 border-t border-slate-100 dark:border-slate-700 flex-wrap">
+                  <span className="text-slate-500 text-sm w-14 shrink-0">Série {serie}</span>
+                  <Stepper
+                    valor={entrada.cargaKg}
+                    sufixo="kg"
+                    passo={1}
+                    onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'cargaKg', v)}
+                  />
+                  <Stepper
+                    valor={entrada.repeticoes}
+                    sufixo=" reps"
+                    passo={1}
+                    onMudar={(v) => atualizarEntrada(exercicioAtual.id!, serie, 'repeticoes', v)}
+                  />
+                  <div className="flex gap-1 ml-auto">
+                    {OPCOES_PERCEPCAO.map((opcao) => (
+                      <button
+                        key={opcao.id}
+                        onClick={() => concluirSerie(exercicioAtual.id!, serie, opcao.id, cargaPadrao)}
+                        aria-label={opcao.label}
+                        title={opcao.label}
+                        className={`min-w-[40px] min-h-[40px] rounded-lg flex items-center justify-center text-lg ${
+                          opcao.id === 'dor'
+                            ? 'bg-red-100 dark:bg-red-950'
+                            : 'bg-slate-100 dark:bg-slate-700'
+                        }`}
                       >
-                        <span className="font-medium">
-                          Série {serie}: {feito.cargaKg}kg × {feito.repeticoes}
-                        </span>
-                        <span>
-                          {opcao?.emoji} {opcao?.label}
-                        </span>
-                      </div>
-                    )
-                  }
+                        {opcao.emoji}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
 
-                  return (
-                    <div key={serie} className="flex flex-col gap-2">
-                      <span className="text-slate-500 font-medium">Série {serie}</span>
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-xs text-slate-400">Carga (kg)</span>
-                          <Stepper
-                            valor={entrada.cargaKg}
-                            passo={1}
-                            onMudar={(v) => atualizarEntrada(ex.id!, serie, 'cargaKg', v)}
-                          />
-                        </div>
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="text-xs text-slate-400">Repetições</span>
-                          <Stepper
-                            valor={entrada.repeticoes}
-                            passo={1}
-                            onMudar={(v) => atualizarEntrada(ex.id!, serie, 'repeticoes', v)}
-                          />
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-400 text-center">Como foi essa série?</p>
-                      <div className="grid grid-cols-4 gap-1">
-                        {OPCOES_PERCEPCAO.map((opcao) => (
-                          <button
-                            key={opcao.id}
-                            onClick={() => concluirSerie(ex.id!, serie, opcao.id, cargaPadrao)}
-                            className={`min-h-[52px] rounded-xl flex flex-col items-center justify-center text-xs font-medium ${
-                              opcao.id === 'dor'
-                                ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400'
-                                : 'bg-slate-100 dark:bg-slate-700'
-                            }`}
-                          >
-                            <span className="text-xl">{opcao.emoji}</span>
-                            {opcao.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </Card>
-        )
-      })}
+          <div className="flex gap-2 mt-4">
+            <BigButton
+              variant="secondary"
+              className="flex-1"
+              disabled={indiceAtual === 0}
+              onClick={() => {
+                setIndiceAtual((i) => i - 1)
+                setMostrarComoFazer(false)
+              }}
+            >
+              ◀ Anterior
+            </BigButton>
+            <BigButton
+              variant={atualCompleto ? 'success' : 'secondary'}
+              className="flex-1"
+              disabled={indiceAtual === exercicios.length - 1}
+              onClick={() => {
+                setIndiceAtual((i) => i + 1)
+                setMostrarComoFazer(false)
+              }}
+            >
+              Próximo ▶
+            </BigButton>
+          </div>
+        </Card>
+      )}
 
       {todosSetsFeitos && !sessaoHoje?.finalizado && (
         <BigButton variant="success" className="w-full" onClick={finalizarTreino}>

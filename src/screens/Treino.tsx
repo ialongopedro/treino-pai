@@ -6,6 +6,7 @@ import { BigButton } from '../components/BigButton'
 import { Stepper } from '../components/Stepper'
 import { RestTimer } from '../components/RestTimer'
 import { ResumoTreino } from '../components/ResumoTreino'
+import { EditarExercicios } from './EditarExercicios'
 import { ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
 import { solicitarTelaSempreAcesa } from '../lib/feedback'
@@ -39,6 +40,7 @@ export function Treino() {
   const [entradas, setEntradas] = useState<Record<string, EntradaSerie>>({})
   const [descansando, setDescansando] = useState(false)
   const [exercicioExpandido, setExercicioExpandido] = useState<number | null>(null)
+  const [editandoExercicios, setEditandoExercicios] = useState(false)
   const wakeLockRef = useRef<WakeLockSentinel | null>(null)
 
   useEffect(() => {
@@ -72,6 +74,10 @@ export function Treino() {
     }
   }, [diaDeTreino, sessaoHoje?.finalizado])
 
+  if (editandoExercicios) {
+    return <EditarExercicios onFechar={() => setEditandoExercicios(false)} />
+  }
+
   if (!diaDeTreino) {
     return (
       <div className="p-4 pb-24">
@@ -80,6 +86,9 @@ export function Treino() {
           <p className="text-slate-600 dark:text-slate-300">
             O plano é treinar segunda, quarta e sexta. Aproveite o descanso!
           </p>
+          <BigButton variant="secondary" className="w-full mt-3" onClick={() => setEditandoExercicios(true)}>
+            ✏️ Editar exercícios
+          </BigButton>
         </Card>
       </div>
     )
@@ -140,11 +149,19 @@ export function Treino() {
 
   return (
     <div className="p-4 pb-24 flex flex-col gap-4">
-      <div>
-        <h1 className="text-2xl font-bold">Treino de hoje</h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          {objetivo.emoji} {objetivo.nome} · {objetivo.repMin}-{objetivo.repMax} reps
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-bold">Treino de hoje</h1>
+          <p className="text-slate-500 dark:text-slate-400">
+            {objetivo.emoji} {objetivo.nome} · {objetivo.repMin}-{objetivo.repMax} reps
+          </p>
+        </div>
+        <button
+          onClick={() => setEditandoExercicios(true)}
+          className="min-h-[44px] px-2 text-blue-700 dark:text-blue-300 font-medium text-sm whitespace-nowrap"
+        >
+          ✏️ Editar
+        </button>
       </div>
 
       {sessaoHoje?.finalizado && (

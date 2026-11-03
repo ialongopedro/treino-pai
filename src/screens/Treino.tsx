@@ -1,19 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
+import { Stepper } from '../components/Stepper'
 import { RestTimer } from '../components/RestTimer'
+import { ResumoTreino } from '../components/ResumoTreino'
 import { ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
+import { solicitarTelaSempreAcesa } from '../lib/feedback'
 import { obterObjetivo } from '../db/goals'
-import type { SetLog, WorkoutSession } from '../types'
+import type { Percepcao, SetLog, WorkoutSession } from '../types'
 
 const SERIES_POR_EXERCICIO = 3
 
+const OPCOES_PERCEPCAO: { id: Percepcao; emoji: string; label: string }[] = [
+  { id: 'facil', emoji: '🙂', label: 'Fácil' },
+  { id: 'bom', emoji: '😐', label: 'Boa' },
+  { id: 'dificil', emoji: '😓', label: 'Difícil' },
+  { id: 'dor', emoji: '😣', label: 'Senti dor' },
+]
+
 interface EntradaSerie {
-  cargaKg: string
-  repeticoes: string
+  cargaKg: number
+  repeticoes: number
 }
 
 export function Treino() {
@@ -29,6 +39,7 @@ export function Treino() {
   const [entradas, setEntradas] = useState<Record<string, EntradaSerie>>({})
   const [descansando, setDescansando] = useState(false)
   const [exercicioExpandido, setExercicioExpandido] = useState<number | null>(null)
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null)
 
   useEffect(() => {
     if (!diaDeTreino) return
@@ -50,6 +61,17 @@ export function Treino() {
     garantirSessao()
   }, [diaDeTreino, hoje])
 
+  useEffect(() => {
+    if (!diaDeTreino || sessaoHoje?.finalizado) return
+    solicitarTelaSempreAcesa().then((lock) => {
+      wakeLockRef.current = lock
+    })
+    return () => {
+      wakeLockRef.current?.release().catch(() => {})
+      wakeLockRef.current = null
+    }
+  }, [diaDeTreino, sessaoHoje?.finalizado])
+
   if (!diaDeTreino) {
     return (
       <div className="p-4 pb-24">
@@ -65,23 +87,39 @@ export function Treino() {
 
   const chave = (exercicioId: number, serie: number) => `${exercicioId}-${serie}`
 
-  async function concluirSerie(exercicioId: number, serie: number, doeu: boolean) {
+  function entradaAtual(exercicioId: number, serie: number, cargaPadrao: number): EntradaSerie {
+    return entradas[chave(exercicioId, serie)] ?? { cargaKg: cargaPadrao, repeticoes: 0 }
+  }
+
+  function atualizarEntrada(exercicioId: number, serie: number, campo: keyof EntradaSerie, valor: number) {
+    const k = chave(exercicioId, serie)
+    setEntradas((prev) => ({
+      ...prev,
+      [k]: { ...entradaAtual(exercicioId, serie, 0), ...prev[k], [campo]: valor },
+    }))
+  }
+
+  async function concluirSerie(exercicioId: number, serie: number, percepcao: Percepcao, cargaPadrao: number) {
     if (!sessionId) return
-    const entrada = entradas[chave(exercicioId, serie)]
-    const cargaKg = parseFloat(entrada?.cargaKg || '0')
-    const repeticoes = parseInt(entrada?.repeticoes || '0', 10)
+    const entrada = entradaAtual(exercicioId, serie, cargaPadrao)
 
     const sessao = await db.sessions.get(sessionId)
     if (!sessao) return
 
-    const novoSet: SetLog = { exercicioId, numeroSerie: serie, cargaKg, repeticoes, doeu }
+    const novoSet: SetLog = {
+      exercicioId,
+      numeroSerie: serie,
+      cargaKg: entrada.cargaKg,
+      repeticoes: entrada.repeticoes,
+      percepcao,
+    }
     const setsAtualizados = [
       ...sessao.sets.filter((s) => !(s.exercicioId === exercicioId && s.numeroSerie === serie)),
       novoSet,
     ]
     await db.sessions.update(sessionId, { sets: setsAtualizados })
 
-    if (!doeu && serie < SERIES_POR_EXERCICIO) {
+    if (percepcao !== 'dor' && serie < SERIES_POR_EXERCICIO) {
       setDescansando(true)
     }
   }
@@ -89,6 +127,7 @@ export function Treino() {
   async function finalizarTreino() {
     if (!sessionId) return
     await db.sessions.update(sessionId, { finalizado: true })
+    wakeLockRef.current?.release().catch(() => {})
   }
 
   const todosSetsFeitos =
@@ -109,11 +148,7 @@ export function Treino() {
       </div>
 
       {sessaoHoje?.finalizado && (
-        <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-900">
-          <p className="text-green-800 dark:text-green-300 font-semibold">
-            Treino concluído hoje. Muito bem! 💪
-          </p>
-        </Card>
+        <ResumoTreino sessaoHoje={sessaoHoje} sessions={sessions} exercises={exercicios} />
       )}
 
       {descansando && (
@@ -125,6 +160,7 @@ export function Treino() {
         const sugestao = ultimo ? sugerirProgressao(ultimo.sets, ultimo.cargaKg, objetivo.repMax) : null
         const alertaDor = doisEpisodiosDorSeguidos(sessions, ex.id!)
         const expandido = exercicioExpandido === ex.id
+        const cargaPadrao = sugestao?.deveAumentar ? sugestao.cargaSugeridaKg : ultimo?.cargaKg ?? 0
 
         return (
           <Card key={ex.id}>
@@ -155,7 +191,7 @@ export function Treino() {
             )}
 
             {expandido && (
-              <div className="mt-3 flex flex-col gap-3">
+              <div className="mt-3 flex flex-col gap-4">
                 <p className="text-sm text-slate-600 dark:text-slate-300">{ex.descricao}</p>
                 <p className="text-sm text-amber-700 dark:text-amber-400">⚠️ {ex.dicaSeguranca}</p>
 
@@ -163,66 +199,66 @@ export function Treino() {
                   const feito = sessaoHoje?.sets.find(
                     (s) => s.exercicioId === ex.id && s.numeroSerie === serie,
                   )
-                  return (
-                    <div key={serie} className="flex items-center gap-2">
-                      <span className="w-16 text-slate-500">Série {serie}</span>
-                      <input
-                        type="number"
-                        inputMode="decimal"
-                        placeholder="kg"
-                        disabled={!!feito}
-                        defaultValue={feito?.cargaKg || ultimo?.cargaKg || ''}
-                        onChange={(e) =>
-                          setEntradas((prev) => ({
-                            ...prev,
-                            [chave(ex.id!, serie)]: {
-                              ...prev[chave(ex.id!, serie)],
-                              cargaKg: e.target.value,
-                            },
-                          }))
-                        }
-                        className="w-20 min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-2 text-center"
-                      />
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        placeholder="reps"
-                        disabled={!!feito}
-                        defaultValue={feito?.repeticoes || ''}
-                        onChange={(e) =>
-                          setEntradas((prev) => ({
-                            ...prev,
-                            [chave(ex.id!, serie)]: {
-                              ...prev[chave(ex.id!, serie)],
-                              repeticoes: e.target.value,
-                            },
-                          }))
-                        }
-                        className="w-20 min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-2 text-center"
-                      />
-                      {feito ? (
-                        <span className="flex-1 text-center text-green-700 dark:text-green-400">
-                          ✓ feito
+                  const entrada = entradaAtual(ex.id!, serie, cargaPadrao)
+
+                  if (feito) {
+                    const opcao = OPCOES_PERCEPCAO.find((o) => o.id === feito.percepcao)
+                    return (
+                      <div
+                        key={serie}
+                        className="flex items-center justify-between gap-2 text-green-700 dark:text-green-400"
+                      >
+                        <span className="font-medium">
+                          Série {serie}: {feito.cargaKg}kg × {feito.repeticoes}
                         </span>
-                      ) : (
-                        <BigButton
-                          className="flex-1 !min-h-[48px] !py-2 text-base"
-                          onClick={() => concluirSerie(ex.id!, serie, false)}
-                        >
-                          Concluir
-                        </BigButton>
-                      )}
+                        <span>
+                          {opcao?.emoji} {opcao?.label}
+                        </span>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div key={serie} className="flex flex-col gap-2">
+                      <span className="text-slate-500 font-medium">Série {serie}</span>
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-xs text-slate-400">Carga (kg)</span>
+                          <Stepper
+                            valor={entrada.cargaKg}
+                            passo={1}
+                            onMudar={(v) => atualizarEntrada(ex.id!, serie, 'cargaKg', v)}
+                          />
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-xs text-slate-400">Repetições</span>
+                          <Stepper
+                            valor={entrada.repeticoes}
+                            passo={1}
+                            onMudar={(v) => atualizarEntrada(ex.id!, serie, 'repeticoes', v)}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-400 text-center">Como foi essa série?</p>
+                      <div className="grid grid-cols-4 gap-1">
+                        {OPCOES_PERCEPCAO.map((opcao) => (
+                          <button
+                            key={opcao.id}
+                            onClick={() => concluirSerie(ex.id!, serie, opcao.id, cargaPadrao)}
+                            className={`min-h-[52px] rounded-xl flex flex-col items-center justify-center text-xs font-medium ${
+                              opcao.id === 'dor'
+                                ? 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400'
+                                : 'bg-slate-100 dark:bg-slate-700'
+                            }`}
+                          >
+                            <span className="text-xl">{opcao.emoji}</span>
+                            {opcao.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )
                 })}
-
-                <BigButton
-                  variant="danger"
-                  className="!min-h-[48px] !py-2 text-base"
-                  onClick={() => concluirSerie(ex.id!, 1, true)}
-                >
-                  😣 Senti dor neste exercício
-                </BigButton>
               </div>
             )}
           </Card>

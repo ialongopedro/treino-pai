@@ -4,8 +4,9 @@ import { Card } from '../components/Card'
 import { ProgressBar } from '../components/ProgressBar'
 import { BigButton } from '../components/BigButton'
 import { ehDiaDeTreino, hojeISO, nomeDoDia } from '../lib/date'
-import { calcularMetaProteina, calcularTotaisDoDia, calcularSequenciaSemanas } from '../lib/calc'
+import { calcularMetaProteina, calcularTotaisDoDia, diasComTreinoFinalizado } from '../lib/calc'
 import { obterObjetivo } from '../db/goals'
+import { CalendarioSequencia } from '../components/CalendarioSequencia'
 import type { Aba } from '../components/BottomNav'
 
 const MENSAGENS_MOTIVACIONAIS = [
@@ -28,7 +29,7 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
 
   const totais = calcularTotaisDoDia(meals, foods)
   const metaProteina = perfil ? calcularMetaProteina(perfil.pesoKg, perfil.metaProteinaGKg) : 0
-  const sequencia = calcularSequenciaSemanas(sessions)
+  const diasFinalizados = diasComTreinoFinalizado(sessions)
   const objetivo = obterObjetivo(perfil?.objetivoId)
 
   const mensagem = MENSAGENS_MOTIVACIONAIS[new Date().getDate() % MENSAGENS_MOTIVACIONAIS.length]
@@ -76,14 +77,10 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
         </BigButton>
       </Card>
 
-      {sequencia > 0 && (
-        <Card>
-          <p className="text-lg">
-            🔥 <strong>{sequencia}</strong> semana{sequencia > 1 ? 's' : ''} seguida
-            {sequencia > 1 ? 's' : ''} treinando
-          </p>
-        </Card>
-      )}
+      <Card>
+        <h2 className="text-lg font-semibold mb-2">📅 Últimas 4 semanas</h2>
+        <CalendarioSequencia diasFinalizados={diasFinalizados} />
+      </Card>
 
       <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900">
         <p className="italic text-blue-800 dark:text-blue-200">"{mensagem}"</p>

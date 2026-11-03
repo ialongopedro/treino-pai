@@ -28,13 +28,15 @@ export interface WorkoutDayTemplate {
   exercicioIds: number[]
 }
 
+export type Percepcao = 'facil' | 'bom' | 'dificil' | 'dor'
+
 export interface SetLog {
   exercicioId: number
   numeroSerie: number
   cargaKg: number
   repeticoes: number
   observacao?: string
-  doeu: boolean
+  percepcao: Percepcao
 }
 
 export interface WorkoutSession {

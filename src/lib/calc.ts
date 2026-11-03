@@ -50,7 +50,8 @@ export function sugerirProgressao(
     return { deveAumentar: false, cargaSugeridaKg: cargaAtual }
   }
   const todasNoTopo = ultimosSets.every((s) => s.repeticoes >= repMax)
-  if (todasNoTopo) {
+  const nenhumaDificil = ultimosSets.every((s) => s.percepcao === 'facil' || s.percepcao === 'bom')
+  if (todasNoTopo && nenhumaDificil) {
     const incremento = cargaAtual >= 20 ? 2.5 : 1
     return { deveAumentar: true, cargaSugeridaKg: cargaAtual + incremento }
   }
@@ -108,6 +109,10 @@ export function doisEpisodiosDorSeguidos(
   if (comExercicio.length < 2) return false
 
   return comExercicio.every((session) =>
-    session.sets.some((set) => set.exercicioId === exercicioId && set.doeu),
+    session.sets.some((set) => set.exercicioId === exercicioId && set.percepcao === 'dor'),
   )
+}
+
+export function diasComTreinoFinalizado(sessions: WorkoutSession[]): Set<string> {
+  return new Set(sessions.filter((s) => s.finalizado).map((s) => s.data))
 }

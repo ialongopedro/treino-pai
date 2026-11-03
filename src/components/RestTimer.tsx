@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { BigButton } from './BigButton'
+import { avisarFimDoDescanso } from '../lib/feedback'
 
 export function RestTimer({
   segundosIniciais = 75,
@@ -18,6 +19,7 @@ export function RestTimer({
       setSegundosRestantes((atual) => {
         if (atual <= 1) {
           window.clearInterval(intervalRef.current ?? undefined)
+          avisarFimDoDescanso()
           onFim?.()
           return 0
         }

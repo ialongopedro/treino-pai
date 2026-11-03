@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
@@ -197,10 +197,8 @@ function FormularioPerfil({
   const [pressaoAlta, setPressaoAlta] = useState(perfilAtual?.pressaoAlta ?? true)
   const [outrasLimitacoes, setOutrasLimitacoes] = useState(perfilAtual?.outrasLimitacoes ?? '')
   const [objetivoId, setObjetivoId] = useState(perfilAtual?.objetivoId ?? 'ganhar_massa')
-  const [perfilCorporalId, setPerfilCorporalId] = useState(
-    perfilAtual?.perfilCorporalId ??
-      classificarIMC(calcularIMC(parseFloat(pesoKg) || 70, parseFloat(alturaCm) || 170)),
-  )
+  const [ajustarPerfilManualmente, setAjustarPerfilManualmente] = useState(false)
+  const [perfilCorporalManual, setPerfilCorporalManual] = useState(perfilAtual?.perfilCorporalId ?? null)
   const [metaProteinaGKg, setMetaProteinaGKg] = useState(perfilAtual?.metaProteinaGKg ?? 1.4)
   const [metaCaloriasKcal, setMetaCaloriasKcal] = useState(
     String(perfilAtual?.metaCaloriasKcal ?? 2200),
@@ -208,33 +206,17 @@ function FormularioPerfil({
 
   const imcAtual = calcularIMC(parseFloat(pesoKg) || 70, parseFloat(alturaCm) || 170)
   const perfilSugerido = classificarIMC(imcAtual)
+  const perfilCorporalId = perfilCorporalManual ?? perfilSugerido
 
-  function recalcularMetas(novoObjetivoId: typeof objetivoId, novoPerfilId: typeof perfilCorporalId) {
-    const objetivo = obterObjetivo(novoObjetivoId)
-    const perfilCorporal = obterPerfilCorporal(novoPerfilId)
+  useEffect(() => {
+    const objetivo = obterObjetivo(objetivoId)
+    const perfilCorporal = obterPerfilCorporal(perfilCorporalId)
     setMetaProteinaGKg(Math.round((objetivo.metaProteinaGKg + perfilCorporal.ajusteProteinaGKg) * 10) / 10)
     setMetaCaloriasKcal(String(calcularMetaCaloriasSugerida(parseFloat(pesoKg) || 70, objetivo)))
-  }
-
-  function escolherObjetivo(novoId: typeof objetivoId) {
-    setObjetivoId(novoId)
-    recalcularMetas(novoId, perfilCorporalId)
-  }
-
-  function escolherPerfilCorporal(novoId: typeof perfilCorporalId) {
-    setPerfilCorporalId(novoId)
-    recalcularMetas(objetivoId, novoId)
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [objetivoId, perfilCorporalId, pesoKg])
 
   function handleSalvar() {
-    const objetivoMudou = perfilAtual && perfilAtual.objetivoId !== objetivoId
-    const perfilCorporalMudou = perfilAtual && perfilAtual.perfilCorporalId !== perfilCorporalId
-    if (objetivoMudou || perfilCorporalMudou) {
-      const confirmou = window.confirm(
-        'Mudar o objetivo ou o perfil corporal vai substituir os exercícios do treino pelos mais indicados pra essa combinação. O histórico de treinos anteriores continua salvo. Quer continuar?',
-      )
-      if (!confirmou) return
-    }
     onSalvar({
       nome: nome || 'Sem nome',
       idade: parseInt(idade, 10) || 70,
@@ -318,7 +300,7 @@ function FormularioPerfil({
               <button
                 key={obj.id}
                 type="button"
-                onClick={() => escolherObjetivo(obj.id)}
+                onClick={() => setObjetivoId(obj.id)}
                 className={`text-left rounded-xl border-2 p-3 transition-colors ${
                   objetivoId === obj.id
                     ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
@@ -334,32 +316,43 @@ function FormularioPerfil({
           </div>
         </div>
 
-        <div>
-          <span className="font-medium block mb-1">Perfil corporal</span>
-          <p className="text-xs text-slate-400 mb-2">
-            IMC calculado: {imcAtual.toFixed(1)} — sugestão automática: {obterPerfilCorporal(perfilSugerido).emoji}{' '}
-            {obterPerfilCorporal(perfilSugerido).nome}
+        <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Com esse peso e altura (IMC {imcAtual.toFixed(1)}), o treino e a dieta sugeridos são pro perfil:
           </p>
-          <div className="flex flex-col gap-2">
-            {PERFIS_CORPORAIS.map((p: PerfilCorporalDefinition) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => escolherPerfilCorporal(p.id)}
-                className={`text-left rounded-xl border-2 p-3 transition-colors ${
-                  perfilCorporalId === p.id
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
-                    : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'
-                }`}
-              >
-                <span className="font-semibold">
-                  {p.emoji} {p.nome}
-                  {perfilSugerido === p.id ? ' (sugerido)' : ''}
-                </span>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{p.descricao}</p>
-              </button>
-            ))}
-          </div>
+          <p className="font-semibold mt-1">
+            {obterPerfilCorporal(perfilCorporalId).emoji} {obterPerfilCorporal(perfilCorporalId).nome}
+          </p>
+          <button
+            type="button"
+            onClick={() => setAjustarPerfilManualmente((v) => !v)}
+            className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-2"
+          >
+            {ajustarPerfilManualmente ? 'Usar cálculo automático' : 'Ajustar manualmente'}
+          </button>
+
+          {ajustarPerfilManualmente && (
+            <div className="flex flex-col gap-2 mt-3">
+              {PERFIS_CORPORAIS.map((p: PerfilCorporalDefinition) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setPerfilCorporalManual(p.id)}
+                  className={`text-left rounded-xl border-2 p-3 transition-colors ${
+                    perfilCorporalId === p.id
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
+                      : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'
+                  }`}
+                >
+                  <span className="font-semibold">
+                    {p.emoji} {p.nome}
+                    {perfilSugerido === p.id ? ' (sugerido pelo IMC)' : ''}
+                  </span>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{p.descricao}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <label className="flex flex-col gap-1">

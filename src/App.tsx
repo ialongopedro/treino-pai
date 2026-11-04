@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { seedIfEmpty } from './db/seed'
+import { seedIfEmpty, sincronizarCamposNovosDosExercicios } from './db/seed'
 import { BottomNav, type Aba } from './components/BottomNav'
 import { Hoje } from './screens/Hoje'
 import { Treino } from './screens/Treino'
@@ -12,7 +12,7 @@ export default function App() {
   const [mostrarPerfil, setMostrarPerfil] = useState(false)
 
   useEffect(() => {
-    seedIfEmpty()
+    seedIfEmpty().then(sincronizarCamposNovosDosExercicios)
   }, [])
 
   return (

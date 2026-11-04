@@ -39,3 +39,24 @@ export async function aplicarObjetivo(objetivoId: GoalId, perfilCorporalId: Perf
   await db.exercises.clear()
   await db.exercises.bulkAdd(exercicios)
 }
+
+// Exercícios salvos antes de um campo novo existir (ex: linkVideo) não o recebem
+// automaticamente, já que só são regravados quando o objetivo/perfil muda. Preenche
+// o que estiver faltando, sem mexer no que o usuário já tiver editado.
+export async function sincronizarCamposNovosDosExercicios() {
+  const perfil = await db.profile.toCollection().first()
+  const objetivo = obterObjetivo(perfil?.objetivoId)
+  const perfilCorporal = obterPerfilCorporal(perfil?.perfilCorporalId)
+  const exerciciosModelo = perfilCorporal.usaExerciciosAdaptados
+    ? objetivo.exerciciosAdaptados
+    : objetivo.exerciciosPadrao
+
+  const exerciciosAtuais = await db.exercises.toArray()
+  for (const atual of exerciciosAtuais) {
+    if (atual.linkVideo || !atual.id) continue
+    const modelo = exerciciosModelo.find((m) => m.nome === atual.nome)
+    if (modelo?.linkVideo) {
+      await db.exercises.update(atual.id, { linkVideo: modelo.linkVideo })
+    }
+  }
+}

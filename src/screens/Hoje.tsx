@@ -1,13 +1,38 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { AlertTriangle, TrendingUp, Heart, Sparkles } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { ProgressBar } from '../components/ProgressBar'
 import { BigButton } from '../components/BigButton'
 import { ehDiaDeTreino, hojeISO, nomeDoDia } from '../lib/date'
 import { calcularMetaProteina, calcularTotaisDoDia, diasComTreinoFinalizado } from '../lib/calc'
+import { gerarDicaTreinador, type DicaTreinador } from '../lib/treinador'
 import { obterObjetivo } from '../db/goals'
 import { CalendarioSequencia } from '../components/CalendarioSequencia'
 import type { Aba } from '../components/BottomNav'
+
+const ESTILO_POR_TOM: Record<DicaTreinador['tom'], { card: string; texto: string; Icone: typeof Heart }> = {
+  alerta: {
+    card: 'bg-amber-50 dark:bg-amber-950 border-amber-200 dark:border-amber-900',
+    texto: 'text-amber-800 dark:text-amber-200',
+    Icone: AlertTriangle,
+  },
+  sugestao: {
+    card: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900',
+    texto: 'text-blue-800 dark:text-blue-200',
+    Icone: TrendingUp,
+  },
+  elogio: {
+    card: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-900',
+    texto: 'text-green-800 dark:text-green-200',
+    Icone: Sparkles,
+  },
+  lembrete: {
+    card: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900',
+    texto: 'text-blue-800 dark:text-blue-200',
+    Icone: Heart,
+  },
+}
 
 const MENSAGENS_MOTIVACIONAIS = [
   'Cada treino é um tijolo na sua autonomia.',
@@ -26,12 +51,14 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
   const foods = useLiveQuery(() => db.foods.toArray()) ?? []
   const sessaoHoje = useLiveQuery(() => db.sessions.where('data').equals(hoje).first(), [hoje])
   const sessions = useLiveQuery(() => db.sessions.toArray()) ?? []
+  const exercicios = useLiveQuery(() => db.exercises.toArray()) ?? []
 
   const totais = calcularTotaisDoDia(meals, foods)
   const metaProteina = perfil ? calcularMetaProteina(perfil.pesoKg, perfil.metaProteinaGKg) : 0
   const diasFinalizados = diasComTreinoFinalizado(sessions)
   const objetivo = obterObjetivo(perfil?.objetivoId)
 
+  const dicaTreinador = gerarDicaTreinador({ sessions, exercises: exercicios })
   const mensagem = MENSAGENS_MOTIVACIONAIS[new Date().getDate() % MENSAGENS_MOTIVACIONAIS.length]
 
   return (
@@ -82,9 +109,28 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
         <CalendarioSequencia diasFinalizados={diasFinalizados} />
       </Card>
 
-      <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900">
-        <p className="italic text-blue-800 dark:text-blue-200">"{mensagem}"</p>
-      </Card>
+      {dicaTreinador ? (
+        (() => {
+          const estilo = ESTILO_POR_TOM[dicaTreinador.tom]
+          return (
+            <Card className={estilo.card}>
+              <div className="flex items-start gap-2">
+                <estilo.Icone className={`w-5 h-5 shrink-0 mt-0.5 ${estilo.texto}`} />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70 mb-0.5">
+                    Seu treinador
+                  </p>
+                  <p className={estilo.texto}>{dicaTreinador.texto}</p>
+                </div>
+              </div>
+            </Card>
+          )
+        })()
+      ) : (
+        <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900">
+          <p className="italic text-blue-800 dark:text-blue-200">"{mensagem}"</p>
+        </Card>
+      )}
     </div>
   )
 }

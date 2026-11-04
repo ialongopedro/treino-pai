@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Pencil, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Pencil, PlayCircle, ChevronLeft, ChevronRight, HeartPulse } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
@@ -8,6 +8,7 @@ import { Stepper } from '../components/Stepper'
 import { RestTimer } from '../components/RestTimer'
 import { ResumoTreino } from '../components/ResumoTreino'
 import { ExerciseIcon } from '../components/ExerciseIcon'
+import { AjudaDor } from '../components/AjudaDor'
 import { EditarExercicios } from './EditarExercicios'
 import { ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
@@ -47,6 +48,7 @@ export function Treino() {
   const [indiceAtual, setIndiceAtual] = useState(0)
   const [mostrarComoFazer, setMostrarComoFazer] = useState(false)
   const [editandoExercicios, setEditandoExercicios] = useState(false)
+  const [mostrarAjudaDor, setMostrarAjudaDor] = useState(false)
   const wakeLockRef = useRef<WakeLockSentinel | null>(null)
 
   useEffect(() => {
@@ -185,13 +187,23 @@ export function Treino() {
             {objetivo.emoji} {objetivo.nome} · {SERIES_POR_EXERCICIO}x{objetivo.repMin}-{objetivo.repMax} reps
           </p>
         </div>
-        <button
-          onClick={() => setEditandoExercicios(true)}
-          className="min-h-[44px] px-2 flex items-center gap-1 text-blue-700 dark:text-blue-300 font-medium text-sm whitespace-nowrap"
-        >
-          <Pencil className="w-4 h-4" /> Editar
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => setMostrarAjudaDor(true)}
+            className="min-h-[44px] px-2 flex items-center gap-1 text-red-700 dark:text-red-400 font-medium text-sm whitespace-nowrap"
+          >
+            <HeartPulse className="w-4 h-4" /> Dor?
+          </button>
+          <button
+            onClick={() => setEditandoExercicios(true)}
+            className="min-h-[44px] px-2 flex items-center gap-1 text-blue-700 dark:text-blue-300 font-medium text-sm whitespace-nowrap"
+          >
+            <Pencil className="w-4 h-4" /> Editar
+          </button>
+        </div>
       </div>
+
+      {mostrarAjudaDor && <AjudaDor onFechar={() => setMostrarAjudaDor(false)} />}
 
       {sessaoHoje?.finalizado && (
         <ResumoTreino sessaoHoje={sessaoHoje} sessions={sessions} exercises={exercicios} />

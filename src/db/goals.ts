@@ -38,6 +38,7 @@ export const OBJETIVOS: GoalDefinition[] = [
           'Sente e levante de um banco ou cadeira firme, ou use o leg press na academia. Desça controlado, suba empurrando com os calcanhares.',
         dicaSeguranca:
           'Não force o joelho para dentro. Pressão alta: expire ao empurrar o peso, nunca prenda a respiração.',
+        linkVideo: 'https://www.youtube.com/watch?v=L9zJMtE6lPA',
         ordem: 1,
       },
       {
@@ -46,6 +47,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         descricao:
           'Com halteres leves ou barra, incline o quadril para trás mantendo a coluna reta, ou use a mesa flexora na academia.',
         dicaSeguranca: 'Mantenha a coluna neutra, sem arredondar as costas. Comece com carga bem leve.',
+        linkVideo: 'https://www.youtube.com/watch?v=3YmW6SEkat0',
         ordem: 2,
       },
       {
@@ -53,6 +55,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Puxada na polia ou remada com halteres, trazendo os cotovelos para trás, apertando as costas.',
         dicaSeguranca: 'Evite balançar o corpo. Movimento controlado na ida e na volta.',
+        linkVideo: 'https://www.youtube.com/watch?v=s_c8SikiFAU',
         ordem: 3,
       },
       {
@@ -61,6 +64,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         descricao:
           'Supino na máquina ou com halteres, ou flexão de braço com as mãos apoiadas em uma superfície mais alta.',
         dicaSeguranca: 'Expire ao empurrar. Não trave os cotovelos com força no final do movimento.',
+        linkVideo: 'https://www.youtube.com/watch?v=0HDfHE4oPU4',
         ordem: 4,
       },
       {
@@ -69,6 +73,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         descricao:
           'Deitado, suba o quadril apertando o glúteo. Depois, prancha curta ou extensão lombar leve para a região baixa das costas.',
         dicaSeguranca: 'Sem pressa, movimento controlado. Pare se sentir dor na lombar.',
+        linkVideo: 'https://www.youtube.com/watch?v=9dn5Fb3cSoE',
         ordem: 5,
       },
     ],
@@ -78,6 +83,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Sente e levante de uma cadeira firme, apoiando as mãos nos braços da cadeira ou numa mesa.',
         dicaSeguranca: 'Peso bem distribuído nos dois pés. Expire ao levantar, sem pressa.',
+        linkVideo: 'https://www.youtube.com/watch?v=5SyYq8oZ9Lg',
         ordem: 1,
       },
       {
@@ -85,6 +91,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'lombar',
         descricao: 'Deitado de barriga para cima, eleve o quadril apertando o glúteo, ou use a mesa flexora com carga mínima.',
         dicaSeguranca: 'Evite movimentos de tronco livre (sem hiperextensão da lombar). Carga bem leve.',
+        linkVideo: 'https://www.youtube.com/watch?v=kvmT_ZlgVI0',
         ordem: 2,
       },
       {
@@ -92,6 +99,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Sentado, puxe a polia ou elástico trazendo os cotovelos para trás.',
         dicaSeguranca: 'Apoio total das costas no banco. Movimento curto e controlado.',
+        linkVideo: 'https://www.youtube.com/watch?v=ssyIxRv5F8Y',
         ordem: 3,
       },
       {
@@ -99,6 +107,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'empurrar',
         descricao: 'De pé, mãos na parede na altura dos ombros, flexione os braços levando o peito à parede e empurre de volta.',
         dicaSeguranca: 'Pés afastados da parede o suficiente para sentir esforço leve. Expire ao empurrar.',
+        linkVideo: 'https://www.youtube.com/watch?v=N-QcWZsZivs',
         ordem: 4,
       },
       {
@@ -106,6 +115,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'quadril',
         descricao: 'Deitado, suba o quadril apertando o glúteo, sem prancha nesta versão.',
         dicaSeguranca: 'Movimento curto, sem forçar a lombar.',
+        linkVideo: 'https://www.youtube.com/watch?v=kvmT_ZlgVI0',
         ordem: 5,
       },
     ],
@@ -128,6 +138,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Agache mantendo o peso nos calcanhares, pode usar apoio de uma cadeira se precisar.',
         dicaSeguranca: 'Joelhos alinhados com os pés. Expire ao subir.',
+        linkVideo: 'https://www.youtube.com/watch?v=L9zJMtE6lPA',
         ordem: 1,
       },
       {
@@ -135,6 +146,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Dê um passo à frente e flexione os dois joelhos, volte e alterne o lado.',
         dicaSeguranca: 'Use apoio de uma cadeira ao lado se precisar de equilíbrio.',
+        linkVideo: 'https://www.youtube.com/watch?v=SSQkCXcEDx0',
         ordem: 2,
       },
       {
@@ -142,6 +154,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Puxada na polia ou remada com halteres, trazendo os cotovelos para trás.',
         dicaSeguranca: 'Movimento controlado, sem balançar o corpo.',
+        linkVideo: 'https://www.youtube.com/watch?v=s_c8SikiFAU',
         ordem: 3,
       },
       {
@@ -149,6 +162,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'empurrar',
         descricao: 'Mãos apoiadas em uma superfície mais alta (banco, mesa), empurre o corpo para cima.',
         dicaSeguranca: 'Expire ao empurrar. Mantenha o corpo reto.',
+        linkVideo: 'https://www.youtube.com/watch?v=0HDfHE4oPU4',
         ordem: 4,
       },
       {
@@ -156,6 +170,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'core',
         descricao: 'Prancha curta seguida de elevação alternada de joelhos em ritmo leve, sem pressa.',
         dicaSeguranca: 'Pare se sentir dor na lombar ou falta de ar excessiva.',
+        linkVideo: 'https://www.youtube.com/watch?v=05qz97pX2Zw',
         ordem: 5,
       },
     ],
@@ -165,6 +180,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Sente e levante de uma cadeira firme, apoiando as mãos se precisar.',
         dicaSeguranca: 'Peso nos calcanhares. Sem pressa.',
+        linkVideo: 'https://www.youtube.com/watch?v=5SyYq8oZ9Lg',
         ordem: 1,
       },
       {
@@ -172,6 +188,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Em pé, apoiado numa cadeira ou parede, suba os joelhos alternados num ritmo leve, como se estivesse marchando.',
         dicaSeguranca: 'Sempre com apoio por perto. Ritmo controlado, sem pressa.',
+        linkVideo: 'https://www.youtube.com/watch?v=Co1F2qhsZe4',
         ordem: 2,
       },
       {
@@ -179,6 +196,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Sentado, puxe a polia ou elástico trazendo os cotovelos para trás.',
         dicaSeguranca: 'Apoio total das costas no banco.',
+        linkVideo: 'https://www.youtube.com/watch?v=ssyIxRv5F8Y',
         ordem: 3,
       },
       {
@@ -186,6 +204,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'empurrar',
         descricao: 'De pé, mãos na parede na altura dos ombros, flexione os braços e empurre de volta.',
         dicaSeguranca: 'Expire ao empurrar.',
+        linkVideo: 'https://www.youtube.com/watch?v=N-QcWZsZivs',
         ordem: 4,
       },
       {
@@ -193,6 +212,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'core',
         descricao: 'Prancha curta com os joelhos no chão, sem elevação de joelhos nesta versão.',
         dicaSeguranca: 'Pare se sentir dor na lombar ou falta de ar.',
+        linkVideo: 'https://www.youtube.com/watch?v=JOhdRSITfU8',
         ordem: 5,
       },
     ],
@@ -214,6 +234,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Sente e levante de um banco firme, ou use o leg press na academia.',
         dicaSeguranca: 'Desça controlado, sem forçar o joelho para dentro.',
+        linkVideo: 'https://www.youtube.com/watch?v=L9zJMtE6lPA',
         ordem: 1,
       },
       {
@@ -221,6 +242,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'lombar',
         descricao: 'Com halteres leves, incline o quadril para trás mantendo a coluna reta.',
         dicaSeguranca: 'Coluna neutra, carga bem leve no início.',
+        linkVideo: 'https://www.youtube.com/watch?v=3YmW6SEkat0',
         ordem: 2,
       },
       {
@@ -228,6 +250,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Puxada na polia ou remada com halteres.',
         dicaSeguranca: 'Movimento controlado, sem pressa.',
+        linkVideo: 'https://www.youtube.com/watch?v=s_c8SikiFAU',
         ordem: 3,
       },
       {
@@ -235,6 +258,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'empurrar',
         descricao: 'Supino na máquina, com halteres, ou flexão apoiada em superfície mais alta.',
         dicaSeguranca: 'Expire ao empurrar.',
+        linkVideo: 'https://www.youtube.com/watch?v=0HDfHE4oPU4',
         ordem: 4,
       },
       {
@@ -242,6 +266,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'quadril',
         descricao: 'Em pé, suba na ponta dos pés e desça controlado. Pode se apoiar em algo.',
         dicaSeguranca: 'Movimento lento, sem saltar.',
+        linkVideo: 'https://www.youtube.com/watch?v=cklp_Xh5V8M',
         ordem: 5,
       },
     ],
@@ -251,6 +276,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Sente e levante de uma cadeira firme, com apoio dos braços se precisar.',
         dicaSeguranca: 'Sem pressa, peso nos calcanhares.',
+        linkVideo: 'https://www.youtube.com/watch?v=5SyYq8oZ9Lg',
         ordem: 1,
       },
       {
@@ -258,6 +284,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'lombar',
         descricao: 'Deitado, eleve o quadril apertando o glúteo, com carga bem leve ou sem carga.',
         dicaSeguranca: 'Movimento curto, sem hiperextensão da lombar.',
+        linkVideo: 'https://www.youtube.com/watch?v=kvmT_ZlgVI0',
         ordem: 2,
       },
       {
@@ -265,6 +292,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'puxar',
         descricao: 'Sentado, puxe a polia ou elástico levando os cotovelos para trás.',
         dicaSeguranca: 'Apoio total das costas no banco.',
+        linkVideo: 'https://www.youtube.com/watch?v=ssyIxRv5F8Y',
         ordem: 3,
       },
       {
@@ -272,6 +300,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'empurrar',
         descricao: 'Mãos na parede na altura dos ombros, flexione os braços e empurre de volta.',
         dicaSeguranca: 'Expire ao empurrar.',
+        linkVideo: 'https://www.youtube.com/watch?v=N-QcWZsZivs',
         ordem: 4,
       },
       {
@@ -279,6 +308,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'quadril',
         descricao: 'Sentado numa cadeira, suba e desça a ponta dos pés.',
         dicaSeguranca: 'Movimento lento, sem pressa. Reduz a exigência de equilíbrio.',
+        linkVideo: 'https://www.youtube.com/watch?v=Bx6elAOgxMI',
         ordem: 5,
       },
     ],
@@ -301,6 +331,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Levante e sente numa cadeira firme, sem usar as mãos se possível.',
         dicaSeguranca: 'Use os braços de apoio se precisar. Expire ao levantar.',
+        linkVideo: 'https://www.youtube.com/watch?v=g9RG_D5IAjs',
         ordem: 1,
       },
       {
@@ -308,6 +339,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'core',
         descricao: 'Apoiado em uma cadeira ou parede, fique em uma perna por alguns segundos e troque.',
         dicaSeguranca: 'Sempre com apoio por perto. Pare se sentir instabilidade.',
+        linkVideo: 'https://www.youtube.com/watch?v=ao2TNl-Ax7w',
         ordem: 2,
       },
       {
@@ -315,6 +347,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Suba e desça de um degrau ou step baixo, alternando a perna que inicia.',
         dicaSeguranca: 'Use corrimão ou apoio se disponível. Movimento lento.',
+        linkVideo: 'https://www.youtube.com/watch?v=xEeeyxPKJso',
         ordem: 3,
       },
       {
@@ -322,6 +355,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'quadril',
         descricao: 'Em pé, suba na ponta dos pés e desça controlado, com apoio se precisar.',
         dicaSeguranca: 'Sem saltar, movimento controlado.',
+        linkVideo: 'https://www.youtube.com/watch?v=cklp_Xh5V8M',
         ordem: 4,
       },
       {
@@ -329,6 +363,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'lombar',
         descricao: 'Movimentos leves de rotação de quadril e alongamento da lombar e posterior de coxa.',
         dicaSeguranca: 'Sem dor. Movimento suave, sem forçar.',
+        linkVideo: 'https://www.youtube.com/watch?v=r9LCW5mKqAQ',
         ordem: 5,
       },
     ],
@@ -338,6 +373,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Levante e sente numa cadeira firme, sempre apoiando as mãos nos braços da cadeira.',
         dicaSeguranca: 'Não force sem apoio. Expire ao levantar, sem pressa.',
+        linkVideo: 'https://www.youtube.com/watch?v=g9RG_D5IAjs',
         ordem: 1,
       },
       {
@@ -345,6 +381,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'core',
         descricao: 'Apoiado com as duas mãos numa cadeira ou parede, fique em uma perna por alguns segundos e troque.',
         dicaSeguranca: 'Nunca sem apoio firme por perto. Pare se sentir qualquer instabilidade.',
+        linkVideo: 'https://www.youtube.com/watch?v=ao2TNl-Ax7w',
         ordem: 2,
       },
       {
@@ -352,6 +389,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'perna',
         descricao: 'Em pé, apoiado numa cadeira ou parede, suba os joelhos alternados num ritmo leve.',
         dicaSeguranca: 'Sempre com apoio por perto, substitui o degrau para reduzir risco de queda.',
+        linkVideo: 'https://www.youtube.com/watch?v=Co1F2qhsZe4',
         ordem: 3,
       },
       {
@@ -359,6 +397,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'quadril',
         descricao: 'Sentado numa cadeira, suba e desça a ponta dos pés.',
         dicaSeguranca: 'Movimento lento, sem exigir equilíbrio em pé.',
+        linkVideo: 'https://www.youtube.com/watch?v=Bx6elAOgxMI',
         ordem: 4,
       },
       {
@@ -366,6 +405,7 @@ export const OBJETIVOS: GoalDefinition[] = [
         grupo: 'lombar',
         descricao: 'Sentado numa cadeira, movimentos leves de rotação de quadril e alongamento da lombar.',
         dicaSeguranca: 'Sem dor. Movimento suave, sem forçar.',
+        linkVideo: 'https://www.youtube.com/watch?v=r9LCW5mKqAQ',
         ordem: 5,
       },
     ],

@@ -240,8 +240,18 @@ export function Treino() {
             </span>
           </div>
 
-          <div className="flex justify-center my-2">
+          <div className="flex flex-col items-center gap-2 my-2">
             <ExerciseIcon grupo={exercicioAtual.grupo} className="w-20 h-20" />
+            {exercicioAtual.linkVideo && (
+              <a
+                href={exercicioAtual.linkVideo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-[44px] flex items-center gap-2 px-4 rounded-full bg-red-600 text-white font-medium text-sm"
+              >
+                ▶ Ver vídeo de como fazer
+              </a>
+            )}
           </div>
 
           <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">

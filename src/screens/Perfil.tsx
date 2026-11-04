@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { Share2 } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
@@ -175,7 +176,13 @@ export function Perfil() {
         </label>
         {compartilharFamilia && (
           <BigButton variant="secondary" className="w-full" onClick={compartilharResumo}>
-            {mensagemCopiada ? 'Copiado! Cole no WhatsApp' : '📤 Compartilhar resumo da semana'}
+            {mensagemCopiada ? (
+              'Copiado! Cole no WhatsApp'
+            ) : (
+              <>
+                <Share2 className="w-5 h-5" /> Compartilhar resumo da semana
+              </>
+            )}
           </BigButton>
         )}
       </Card>

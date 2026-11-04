@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Dumbbell, User, ChevronLeft } from 'lucide-react'
 import { seedIfEmpty, sincronizarCamposNovosDosExercicios } from './db/seed'
 import { BottomNav, type Aba } from './components/BottomNav'
 import { Hoje } from './screens/Hoje'
@@ -17,14 +18,19 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-      <header className="sticky top-0 z-10 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 flex justify-between items-center">
-        <span className="font-bold text-lg">Treino & Dieta</span>
+      <header className="sticky top-0 z-10 bg-gradient-to-r from-blue-700 to-blue-600 dark:from-blue-900 dark:to-slate-900 text-white px-4 py-3.5 flex justify-between items-center shadow-md">
+        <div className="flex items-center gap-2.5">
+          <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/15">
+            <Dumbbell className="w-5 h-5" strokeWidth={2} />
+          </span>
+          <span className="font-bold text-lg tracking-tight">Treino & Dieta</span>
+        </div>
         <button
           onClick={() => setMostrarPerfil(true)}
-          className="min-h-[44px] min-w-[44px] text-2xl"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/15 active:bg-white/25 transition-colors"
           aria-label="Abrir perfil"
         >
-          👤
+          <User className="w-5 h-5" />
         </button>
       </header>
 
@@ -33,9 +39,9 @@ export default function App() {
           <div>
             <button
               onClick={() => setMostrarPerfil(false)}
-              className="m-4 min-h-[44px] px-4 text-blue-700 dark:text-blue-300 font-medium"
+              className="m-4 min-h-[44px] px-4 flex items-center gap-1 text-blue-700 dark:text-blue-300 font-medium"
             >
-              ← Voltar
+              <ChevronLeft className="w-5 h-5" /> Voltar
             </button>
             <Perfil />
           </div>

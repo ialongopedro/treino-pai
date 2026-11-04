@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import { FileText } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
@@ -240,7 +241,7 @@ export function Evolucao() {
       </Card>
 
       <BigButton variant="secondary" className="w-full" onClick={exportarPDF}>
-        📄 Exportar relatório em PDF
+        <FileText className="w-5 h-5" /> Exportar relatório em PDF
       </BigButton>
     </div>
   )

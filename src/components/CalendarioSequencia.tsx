@@ -39,15 +39,15 @@ export function CalendarioSequencia({ diasFinalizados }: { diasFinalizados: Set<
             <div
               key={dia.iso}
               title={dia.iso}
-              className={`aspect-square rounded-lg flex items-center justify-center text-xs ${
+              className={`aspect-square rounded-lg flex items-center justify-center text-xs transition-colors ${
                 concluido
-                  ? 'bg-green-600 text-white font-semibold'
+                  ? 'bg-gradient-to-br from-green-500 to-green-600 text-white font-semibold shadow-sm'
                   : perdido
                     ? 'bg-red-100 dark:bg-red-950 text-red-400'
                     : diaDeTreinoPlanejado
                       ? 'bg-slate-100 dark:bg-slate-700 text-slate-400'
                       : 'bg-transparent text-slate-300 dark:text-slate-600'
-              } ${dia.ehHoje ? 'ring-2 ring-blue-500' : ''}`}
+              } ${dia.ehHoje ? 'ring-2 ring-blue-500 ring-offset-1 ring-offset-white dark:ring-offset-slate-900' : ''}`}
             >
               {concluido ? '✓' : new Date(dia.iso).getDate()}
             </div>

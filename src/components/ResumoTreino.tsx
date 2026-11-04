@@ -1,3 +1,4 @@
+import { TrendingUp, TrendingDown, Trophy } from 'lucide-react'
 import { Card } from './Card'
 import { calcularVolumeSessao } from '../lib/calc'
 import type { Exercise, WorkoutSession } from '../types'
@@ -34,7 +35,7 @@ export function ResumoTreino({
     .map((ex) => ex.nome)
 
   return (
-    <Card className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-900 text-center">
+    <Card className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-slate-900 border-green-200 dark:border-green-900 text-center">
       <p className="text-3xl mb-1">🎉</p>
       <h2 className="text-xl font-bold text-green-800 dark:text-green-300 mb-3">Treino concluído!</h2>
 
@@ -43,15 +44,20 @@ export function ResumoTreino({
       </p>
 
       {percentual !== null && diferenca !== null && (
-        <p className={`mt-1 font-medium ${diferenca >= 0 ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`}>
-          {diferenca >= 0 ? '📈' : '📉'} {diferenca >= 0 ? '+' : ''}
+        <p
+          className={`mt-1 font-medium flex items-center justify-center gap-1 ${diferenca >= 0 ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`}
+        >
+          {diferenca >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+          {diferenca >= 0 ? '+' : ''}
           {percentual}% comparado ao último treino
         </p>
       )}
 
       {recordes.length > 0 && (
         <div className="mt-3 pt-3 border-t border-green-200 dark:border-green-900">
-          <p className="font-semibold text-amber-700 dark:text-amber-400">🏆 Novo recorde de carga!</p>
+          <p className="font-semibold text-amber-700 dark:text-amber-400 flex items-center justify-center gap-1.5">
+            <Trophy className="w-4 h-4" /> Novo recorde de carga!
+          </p>
           {recordes.map((nome) => (
             <p key={nome} className="text-sm text-slate-600 dark:text-slate-300">
               {nome}

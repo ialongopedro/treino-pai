@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { Pencil, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
@@ -98,7 +99,7 @@ export function Treino() {
             O plano é treinar segunda, quarta e sexta. Aproveite o descanso!
           </p>
           <BigButton variant="secondary" className="w-full mt-3" onClick={() => setEditandoExercicios(true)}>
-            ✏️ Editar exercícios
+            <Pencil className="w-5 h-5" /> Editar exercícios
           </BigButton>
         </Card>
       </div>
@@ -186,9 +187,9 @@ export function Treino() {
         </div>
         <button
           onClick={() => setEditandoExercicios(true)}
-          className="min-h-[44px] px-2 text-blue-700 dark:text-blue-300 font-medium text-sm whitespace-nowrap"
+          className="min-h-[44px] px-2 flex items-center gap-1 text-blue-700 dark:text-blue-300 font-medium text-sm whitespace-nowrap"
         >
-          ✏️ Editar
+          <Pencil className="w-4 h-4" /> Editar
         </button>
       </div>
 
@@ -212,9 +213,9 @@ export function Treino() {
                 setIndiceAtual(i)
                 setMostrarComoFazer(false)
               }}
-              className={`shrink-0 flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 rounded-full border-2 text-sm font-medium whitespace-nowrap min-h-[44px] ${
+              className={`shrink-0 flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 rounded-full border-2 text-sm font-medium whitespace-nowrap min-h-[44px] transition-colors ${
                 ativo
-                  ? 'border-blue-600 bg-blue-50 dark:bg-blue-950'
+                  ? 'border-blue-600 bg-blue-50 dark:bg-blue-950 shadow-sm'
                   : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700'
               }`}
             >
@@ -247,9 +248,9 @@ export function Treino() {
                 href={exercicioAtual.linkVideo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="min-h-[44px] flex items-center gap-2 px-4 rounded-full bg-red-600 text-white font-medium text-sm"
+                className="min-h-[44px] flex items-center gap-2 px-4 rounded-full bg-gradient-to-b from-red-600 to-red-700 text-white font-medium text-sm shadow-md shadow-red-900/20 active:scale-[0.98] transition-transform"
               >
-                ▶ Ver vídeo de como fazer
+                <PlayCircle className="w-5 h-5" /> Ver vídeo de como fazer
               </a>
             )}
           </div>
@@ -367,7 +368,7 @@ export function Treino() {
                 setMostrarComoFazer(false)
               }}
             >
-              ◀ Anterior
+              <ChevronLeft className="w-5 h-5" /> Anterior
             </BigButton>
             <BigButton
               variant={atualCompleto ? 'success' : 'secondary'}
@@ -378,7 +379,7 @@ export function Treino() {
                 setMostrarComoFazer(false)
               }}
             >
-              Próximo ▶
+              Próximo <ChevronRight className="w-5 h-5" />
             </BigButton>
           </div>
         </Card>

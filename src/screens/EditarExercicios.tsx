@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { ChevronUp, ChevronDown, Pencil, Trash2 } from 'lucide-react'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
@@ -176,17 +177,17 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
                     disabled={indice === 0}
                     onClick={() => mover(ex, -1)}
                     aria-label="Mover para cima"
-                    className="min-h-[36px] min-w-[36px] disabled:opacity-30"
+                    className="min-h-[36px] min-w-[36px] flex items-center justify-center disabled:opacity-30"
                   >
-                    ▲
+                    <ChevronUp className="w-4 h-4" />
                   </button>
                   <button
                     disabled={indice === exercicios.length - 1}
                     onClick={() => mover(ex, 1)}
                     aria-label="Mover para baixo"
-                    className="min-h-[36px] min-w-[36px] disabled:opacity-30"
+                    className="min-h-[36px] min-w-[36px] flex items-center justify-center disabled:opacity-30"
                   >
-                    ▼
+                    <ChevronDown className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="flex-1">
@@ -197,15 +198,17 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
                 </div>
                 <button
                   onClick={() => abrirEdicao(ex)}
-                  className="min-h-[44px] px-3 text-blue-700 dark:text-blue-300 font-medium"
+                  aria-label="Editar"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center text-blue-700 dark:text-blue-300 font-medium"
                 >
-                  Editar
+                  <Pencil className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => removerExercicio(ex)}
-                  className="min-h-[44px] px-3 text-red-600 dark:text-red-400 font-medium"
+                  aria-label="Remover"
+                  className="min-h-[44px] min-w-[44px] flex items-center justify-center text-red-600 dark:text-red-400 font-medium"
                 >
-                  Remover
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             )}

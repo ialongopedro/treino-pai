@@ -41,6 +41,8 @@ body {
   margin: 0;
   font-family: system-ui, "Segoe UI", Roboto, sans-serif;
   background: var(--color-bg);
+  background-image: radial-gradient(circle at top, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 55%);
+  background-attachment: fixed;
   color: var(--color-text);
   font-size: 18px;
   line-height: 1.5;

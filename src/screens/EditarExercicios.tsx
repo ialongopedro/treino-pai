@@ -3,7 +3,10 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
+import { ExerciseIllustration, POSES } from '../components/ExerciseIllustration'
 import type { Exercise } from '../types'
+
+const OPCOES_DESENHO = Object.entries(POSES).map(([id, pose]) => ({ id, label: pose.label }))
 
 const GRUPOS: { id: Exercise['grupo']; label: string }[] = [
   { id: 'perna', label: 'Perna' },
@@ -20,6 +23,7 @@ interface FormExercicio {
   descricao: string
   dicaSeguranca: string
   linkVideo: string
+  imagemId: string
 }
 
 const FORM_VAZIO: FormExercicio = {
@@ -28,6 +32,7 @@ const FORM_VAZIO: FormExercicio = {
   descricao: '',
   dicaSeguranca: '',
   linkVideo: '',
+  imagemId: '',
 }
 
 export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
@@ -45,6 +50,7 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
       descricao: ex.descricao,
       dicaSeguranca: ex.dicaSeguranca,
       linkVideo: ex.linkVideo ?? '',
+      imagemId: ex.imagemId ?? '',
     })
   }
 
@@ -56,6 +62,7 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
       descricao: formEdicao.descricao,
       dicaSeguranca: formEdicao.dicaSeguranca,
       linkVideo: formEdicao.linkVideo || undefined,
+      imagemId: formEdicao.imagemId || undefined,
     })
     setEditandoId(null)
   }
@@ -85,6 +92,7 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
       descricao: formNovo.descricao,
       dicaSeguranca: formNovo.dicaSeguranca,
       linkVideo: formNovo.linkVideo || undefined,
+      imagemId: formNovo.imagemId || undefined,
       ordem: maiorOrdem + 1,
     })
     setFormNovo(FORM_VAZIO)
@@ -158,6 +166,28 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
                     className="min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3"
                   />
                 </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm font-medium">Desenho de demonstração</span>
+                  <select
+                    value={formEdicao.imagemId}
+                    onChange={(e) => setFormEdicao((f) => ({ ...f, imagemId: e.target.value }))}
+                    className="min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3"
+                  >
+                    <option value="">Padrão do grupo ({GRUPOS.find((g) => g.id === formEdicao.grupo)?.label})</option>
+                    {OPCOES_DESENHO.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div className="flex justify-center py-1">
+                  <ExerciseIllustration
+                    poseId={formEdicao.imagemId || undefined}
+                    grupo={formEdicao.grupo}
+                    className="w-24 h-24 text-slate-600 dark:text-slate-300"
+                  />
+                </div>
                 <div className="flex gap-2 mt-1">
                   <BigButton className="flex-1" onClick={salvarEdicao}>
                     Salvar
@@ -169,6 +199,11 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
+                <ExerciseIllustration
+                  poseId={ex.imagemId}
+                  grupo={ex.grupo}
+                  className="w-12 h-12 shrink-0 text-slate-500 dark:text-slate-400"
+                />
                 <div className="flex flex-col">
                   <button
                     disabled={indice === 0}
@@ -252,6 +287,28 @@ export function EditarExercicios({ onFechar }: { onFechar: () => void }) {
               className="min-h-[56px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium">Desenho de demonstração</span>
+            <select
+              value={formNovo.imagemId}
+              onChange={(e) => setFormNovo((f) => ({ ...f, imagemId: e.target.value }))}
+              className="min-h-[48px] rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3"
+            >
+              <option value="">Padrão do grupo ({GRUPOS.find((g) => g.id === formNovo.grupo)?.label})</option>
+              {OPCOES_DESENHO.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="flex justify-center py-1">
+            <ExerciseIllustration
+              poseId={formNovo.imagemId || undefined}
+              grupo={formNovo.grupo}
+              className="w-24 h-24 text-slate-600 dark:text-slate-300"
+            />
+          </div>
           <div className="flex gap-2 mt-1">
             <BigButton className="flex-1" onClick={adicionarExercicio} disabled={!formNovo.nome.trim()}>
               Adicionar

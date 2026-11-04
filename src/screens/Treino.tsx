@@ -6,7 +6,7 @@ import { BigButton } from '../components/BigButton'
 import { Stepper } from '../components/Stepper'
 import { RestTimer } from '../components/RestTimer'
 import { ResumoTreino } from '../components/ResumoTreino'
-import { ExerciseIllustration } from '../components/ExerciseIllustration'
+import { ExerciseIcon } from '../components/ExerciseIcon'
 import { EditarExercicios } from './EditarExercicios'
 import { ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
@@ -241,11 +241,7 @@ export function Treino() {
           </div>
 
           <div className="flex justify-center my-2">
-            <ExerciseIllustration
-              poseId={exercicioAtual.imagemId}
-              grupo={exercicioAtual.grupo}
-              className="w-32 h-28 text-slate-600 dark:text-slate-300"
-            />
+            <ExerciseIcon grupo={exercicioAtual.grupo} className="w-20 h-20" />
           </div>
 
           <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mt-1">

@@ -21,7 +21,6 @@ export interface Exercise {
   descricao: string
   dicaSeguranca: string
   linkVideo?: string
-  imagemId?: string
   ordem: number
 }
 

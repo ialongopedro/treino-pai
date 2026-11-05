@@ -1,12 +1,16 @@
-import { DIAS_DE_TREINO } from '../lib/date'
-
 const LETRAS_DIA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
 
 function paraISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export function CalendarioSequencia({ diasFinalizados }: { diasFinalizados: Set<string> }) {
+export function CalendarioSequencia({
+  diasFinalizados,
+  diasDeTreino,
+}: {
+  diasFinalizados: Set<string>
+  diasDeTreino: number[]
+}) {
   const hoje = new Date()
   hoje.setHours(0, 0, 0, 0)
 
@@ -31,7 +35,7 @@ export function CalendarioSequencia({ diasFinalizados }: { diasFinalizados: Set<
           </div>
         ))}
         {dias.map((dia) => {
-          const diaDeTreinoPlanejado = DIAS_DE_TREINO.includes(dia.diaSemana)
+          const diaDeTreinoPlanejado = diasDeTreino.includes(dia.diaSemana)
           const concluido = diasFinalizados.has(dia.iso)
           const perdido = diaDeTreinoPlanejado && !concluido && !dia.ehHoje
 

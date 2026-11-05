@@ -4,7 +4,7 @@ import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { ProgressBar } from '../components/ProgressBar'
 import { BigButton } from '../components/BigButton'
-import { ehDiaDeTreino, hojeISO, nomeDoDia } from '../lib/date'
+import { DIAS_DE_TREINO_PADRAO, ehDiaDeTreino, hojeISO, nomeDoDia } from '../lib/date'
 import { calcularMetaProteina, calcularTotaisDoDia, diasComTreinoFinalizado } from '../lib/calc'
 import { gerarDicaTreinador, type DicaTreinador } from '../lib/treinador'
 import { obterObjetivo } from '../db/goals'
@@ -44,7 +44,8 @@ const MENSAGENS_MOTIVACIONAIS = [
 
 export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
   const perfil = useLiveQuery(() => db.profile.toCollection().first())
-  const diaDeTreino = ehDiaDeTreino()
+  const diasDeTreino = perfil?.diasDeTreino ?? DIAS_DE_TREINO_PADRAO
+  const diaDeTreino = ehDiaDeTreino(diasDeTreino)
   const hoje = hojeISO()
 
   const meals = useLiveQuery(() => db.meals.where('data').equals(hoje).toArray(), [hoje]) ?? []
@@ -58,7 +59,7 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
   const diasFinalizados = diasComTreinoFinalizado(sessions)
   const objetivo = obterObjetivo(perfil?.objetivoId)
 
-  const dicaTreinador = gerarDicaTreinador({ sessions, exercises: exercicios })
+  const dicaTreinador = gerarDicaTreinador({ sessions, exercises: exercicios, diasDeTreino })
   const mensagem = MENSAGENS_MOTIVACIONAIS[new Date().getDate() % MENSAGENS_MOTIVACIONAIS.length]
 
   return (
@@ -79,7 +80,7 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
             ) : (
               <>
                 <p className="mb-3 text-slate-600 dark:text-slate-300">
-                  Treino de corpo inteiro: 5 exercícios, 3 séries cada.
+                  Treino de corpo inteiro: {exercicios.length} exercícios, 3 séries cada.
                 </p>
                 <BigButton className="w-full" onClick={() => onIrPara('treino')}>
                   {sessaoHoje ? 'Continuar treino' : 'Iniciar treino de hoje'}
@@ -106,7 +107,7 @@ export function Hoje({ onIrPara }: { onIrPara: (aba: Aba) => void }) {
 
       <Card>
         <h2 className="text-lg font-semibold mb-2">📅 Últimas 4 semanas</h2>
-        <CalendarioSequencia diasFinalizados={diasFinalizados} />
+        <CalendarioSequencia diasFinalizados={diasFinalizados} diasDeTreino={diasDeTreino} />
       </Card>
 
       {dicaTreinador ? (

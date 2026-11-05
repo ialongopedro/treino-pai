@@ -10,7 +10,7 @@ import { ResumoTreino } from '../components/ResumoTreino'
 import { ExerciseIcon } from '../components/ExerciseIcon'
 import { AjudaDor } from '../components/AjudaDor'
 import { EditarExercicios } from './EditarExercicios'
-import { ehDiaDeTreino, hojeISO } from '../lib/date'
+import { DIAS_DE_TREINO_PADRAO, ehDiaDeTreino, hojeISO } from '../lib/date'
 import { sugerirProgressao, ultimaCargaPorExercicio, doisEpisodiosDorSeguidos } from '../lib/calc'
 import { solicitarTelaSempreAcesa } from '../lib/feedback'
 import { obterObjetivo } from '../db/goals'
@@ -33,11 +33,11 @@ interface EntradaSerie {
 
 export function Treino() {
   const hoje = hojeISO()
-  const diaDeTreino = ehDiaDeTreino()
   const exercicios = useLiveQuery(() => db.exercises.orderBy('ordem').toArray()) ?? []
   const sessions = useLiveQuery(() => db.sessions.toArray()) ?? []
   const sessaoHoje = useLiveQuery(() => db.sessions.where('data').equals(hoje).first(), [hoje])
   const perfil = useLiveQuery(() => db.profile.toCollection().first())
+  const diaDeTreino = ehDiaDeTreino(perfil?.diasDeTreino ?? DIAS_DE_TREINO_PADRAO)
   const objetivo = obterObjetivo(perfil?.objetivoId)
   const perfilCorporal = obterPerfilCorporal(perfil?.perfilCorporalId)
   const descansoSegundos = objetivo.descansoSegundos + perfilCorporal.descansoExtraSegundos

@@ -8,6 +8,7 @@ export interface Profile {
   outrasLimitacoes: string
   objetivoId: 'ganhar_massa' | 'perder_peso' | 'manter_forma' | 'autonomia_mobilidade'
   perfilCorporalId: 'baixo_peso' | 'adequado' | 'excesso_peso'
+  diasDeTreino?: number[] // 0=dom ... 6=sab; se ausente, usa DIAS_DE_TREINO_PADRAO
   metaProteinaGKg: number
   metaCaloriasKcal: number
   aceitouAvisoMedico: boolean

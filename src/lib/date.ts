@@ -1,12 +1,12 @@
-export const DIAS_DE_TREINO = [1, 3, 5] // segunda, quarta, sexta
+export const DIAS_DE_TREINO_PADRAO = [1, 3, 5] // segunda, quarta, sexta
 
 export function hojeISO(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-export function ehDiaDeTreino(data: Date = new Date()): boolean {
-  return DIAS_DE_TREINO.includes(data.getDay())
+export function ehDiaDeTreino(diasDeTreino: number[] = DIAS_DE_TREINO_PADRAO, data: Date = new Date()): boolean {
+  return diasDeTreino.includes(data.getDay())
 }
 
 export function formatarDataCurta(iso: string): string {

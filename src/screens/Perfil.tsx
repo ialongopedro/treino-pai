@@ -5,6 +5,7 @@ import { db } from '../db/db'
 import { Card } from '../components/Card'
 import { BigButton } from '../components/BigButton'
 import { calcularMetaProteina, calcularSequenciaSemanas, calcularTotaisDoDia } from '../lib/calc'
+import { DIAS_DE_TREINO_PADRAO } from '../lib/date'
 import { OBJETIVOS, obterObjetivo, calcularMetaCaloriasSugerida, type GoalDefinition } from '../db/goals'
 import {
   PERFIS_CORPORAIS,
@@ -18,6 +19,24 @@ import type { Profile } from '../types'
 
 const MARCOS_SEQUENCIA = [1, 4, 8, 12, 24]
 const MARCOS_TREINOS = [10, 25, 50, 100]
+
+const DIAS_SEMANA = [
+  { valor: 0, letra: 'D', nome: 'Domingo' },
+  { valor: 1, letra: 'S', nome: 'Segunda' },
+  { valor: 2, letra: 'T', nome: 'Terça' },
+  { valor: 3, letra: 'Q', nome: 'Quarta' },
+  { valor: 4, letra: 'Q', nome: 'Quinta' },
+  { valor: 5, letra: 'S', nome: 'Sexta' },
+  { valor: 6, letra: 'S', nome: 'Sábado' },
+]
+
+function nomesDosDias(dias: number[]): string {
+  return dias
+    .slice()
+    .sort()
+    .map((d) => DIAS_SEMANA[d].nome)
+    .join(', ')
+}
 
 export function Perfil() {
   const perfil = useLiveQuery(() => db.profile.toCollection().first())
@@ -35,7 +54,7 @@ export function Perfil() {
     const objetivoMudou = perfil && perfil.objetivoId !== dados.objetivoId
     const perfilCorporalMudou = perfil && perfil.perfilCorporalId !== dados.perfilCorporalId
     if (perfil?.id) {
-      await db.profile.update(perfil.id, dados)
+      await db.profile.put({ ...dados, id: perfil.id })
     } else {
       await db.profile.add({ ...dados, aceitouAvisoMedico: true, criadoEm: new Date().toISOString() })
     }
@@ -107,6 +126,9 @@ export function Perfil() {
         </p>
         <p className="text-slate-600 dark:text-slate-300 mt-1">
           Perfil corporal: {perfilCorporal.emoji} {perfilCorporal.nome} (IMC {imc.toFixed(1)})
+        </p>
+        <p className="text-slate-600 dark:text-slate-300 mt-1">
+          Dias de treino: {nomesDosDias(perfil.diasDeTreino ?? DIAS_DE_TREINO_PADRAO)}
         </p>
         {perfil.pressaoAlta && (
           <p className="text-amber-700 dark:text-amber-400 mt-1">⚠️ Pressão alta registrada</p>
@@ -204,6 +226,9 @@ function FormularioPerfil({
   const [pressaoAlta, setPressaoAlta] = useState(perfilAtual?.pressaoAlta ?? true)
   const [outrasLimitacoes, setOutrasLimitacoes] = useState(perfilAtual?.outrasLimitacoes ?? '')
   const [objetivoId, setObjetivoId] = useState(perfilAtual?.objetivoId ?? 'ganhar_massa')
+  const [diasDeTreino, setDiasDeTreino] = useState<number[]>(
+    perfilAtual?.diasDeTreino ?? DIAS_DE_TREINO_PADRAO,
+  )
   const [ajustarPerfilManualmente, setAjustarPerfilManualmente] = useState(false)
   const [perfilCorporalManual, setPerfilCorporalManual] = useState(perfilAtual?.perfilCorporalId ?? null)
   const [metaProteinaGKg, setMetaProteinaGKg] = useState(perfilAtual?.metaProteinaGKg ?? 1.4)
@@ -223,6 +248,16 @@ function FormularioPerfil({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objetivoId, perfilCorporalId, pesoKg])
 
+  function alternarDiaDeTreino(valor: number) {
+    setDiasDeTreino((atual) => {
+      if (atual.includes(valor)) {
+        if (atual.length === 1) return atual
+        return atual.filter((d) => d !== valor)
+      }
+      return [...atual, valor].sort()
+    })
+  }
+
   function handleSalvar() {
     onSalvar({
       nome: nome || 'Sem nome',
@@ -233,6 +268,7 @@ function FormularioPerfil({
       outrasLimitacoes,
       objetivoId,
       perfilCorporalId,
+      diasDeTreino,
       metaProteinaGKg,
       metaCaloriasKcal: parseFloat(metaCaloriasKcal) || 2200,
       aceitouAvisoMedico: true,
@@ -299,6 +335,36 @@ function FormularioPerfil({
           />
           <span>Tem pressão alta</span>
         </label>
+
+        <div>
+          <span className="font-medium block mb-2">
+            Dias de treino na semana ({diasDeTreino.length})
+          </span>
+          <div className="flex gap-1.5">
+            {DIAS_SEMANA.map((dia) => {
+              const ativo = diasDeTreino.includes(dia.valor)
+              return (
+                <button
+                  key={dia.valor}
+                  type="button"
+                  onClick={() => alternarDiaDeTreino(dia.valor)}
+                  aria-label={dia.nome}
+                  aria-pressed={ativo}
+                  className={`flex-1 min-h-[48px] rounded-xl font-semibold transition-colors ${
+                    ativo
+                      ? 'bg-gradient-to-b from-blue-600 to-blue-700 text-white shadow-sm'
+                      : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {dia.letra}
+                </button>
+              )
+            })}
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
+            {nomesDosDias(diasDeTreino)}
+          </p>
+        </div>
 
         <div>
           <span className="font-medium block mb-2">Objetivo principal</span>
